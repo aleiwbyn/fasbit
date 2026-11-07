@@ -1,0 +1,21 @@
+# Entornos virtuales de Python
+.venv/
+venv/
+ENV/
+
+# Caché y compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+dist/
+build/
+
+# Archivos temporales de Prolog / Sistema
+*.qlf
+*.tmp
+.DS_Store
+Thumbs.db
+.env
+

@@ -1,0 +1,97 @@
+{
+  "scenarios": [
+    {
+      "id": "hora_punta_estandar",
+      "nombre": "Escenario 1: Hora Punta Matutina (Operación Base)",
+      "descripcion": "Evalúa las 5 órdenes regulares de abastecimiento entre 07:00 y 09:00 AM con congestión habitual en ejes arteriales (Av. Javier Prado y Carretera Central), errores de posicionamiento de muelle y riesgo de sobrealmacenamiento en empaques.",
+      "traffic_overrides": [],
+      "stock_overrides": [],
+      "custom_orders": []
+    },
+    {
+      "id": "contingencia_vial_severa",
+      "nombre": "Escenario 2: Contingencia Vial y Cierre Parcial en Evitamiento",
+      "descripcion": "Simula un incidente vial que eleva a nivel crítico la Vía de Evitamiento hacia Santa Anita, obligando al motor Prolog a recalcular desvíos dinámicos por la Autopista Ramiro Prialé.",
+      "traffic_overrides": [
+        { "origen": "nodo_evitamiento", "destino": "almacen_central", "nivel": "critico" },
+        { "origen": "nodo_faucett", "destino": "nodo_javier_prado", "nivel": "critico" },
+        { "origen": "nodo_panam_sur", "destino": "nodo_evitamiento", "nivel": "alto" }
+      ],
+      "stock_overrides": [],
+      "custom_orders": []
+    },
+    {
+      "id": "presion_muelles_simultanea",
+      "nombre": "Escenario 3: Alta Presión en Zonas de Recepción (Riesgo de Colapso)",
+      "descripcion": "Concentra llegadas simultáneas de múltiples proveedores de carga seca e industrial en una ventana estrecha (07:45 - 08:15) para verificar la reasignación a muelles auxiliares y turnos escalonados sin colapso.",
+      "traffic_overrides": [],
+      "stock_overrides": [
+        { "categoria": "abarrotes_secos", "stock_actual": 190, "stock_minimo": 250, "capacidad_maxima": 900 }
+      ],
+      "custom_orders": [
+        {
+          "id_pedido": "ped_s3_01",
+          "id_proveedor": "prov_andina",
+          "categoria": "abarrotes_secos",
+          "cantidad": 280,
+          "volumen_m3": 28.0,
+          "hora_salida_min": 450,
+          "ventana_inicio_min": 470,
+          "plazo_maximo_min": 495,
+          "zona_habitual": "zona_b_seco",
+          "ruta_habitual": ["parque_ind_ate", "almacen_central"]
+        },
+        {
+          "id_pedido": "ped_s3_02",
+          "id_proveedor": "prov_norte_pack",
+          "categoria": "granos",
+          "cantidad": 260,
+          "volumen_m3": 28.6,
+          "hora_salida_min": 430,
+          "ventana_inicio_min": 470,
+          "plazo_maximo_min": 500,
+          "zona_habitual": "zona_b_seco",
+          "ruta_habitual": ["polo_norte_indep", "nodo_zarumilla", "nodo_evitamiento", "almacen_central"]
+        },
+        {
+          "id_pedido": "ped_s3_03",
+          "id_proveedor": "prov_agro_valle",
+          "categoria": "abarrotes_secos",
+          "cantidad": 240,
+          "volumen_m3": 24.0,
+          "hora_salida_min": 420,
+          "ventana_inicio_min": 470,
+          "plazo_maximo_min": 500,
+          "zona_habitual": "zona_b_seco",
+          "ruta_habitual": ["centro_log_lurin", "nodo_panam_sur", "nodo_javier_prado", "almacen_central"]
+        },
+        {
+          "id_pedido": "ped_s3_04",
+          "id_proveedor": "prov_pacifico",
+          "categoria": "perecibles",
+          "cantidad": 200,
+          "volumen_m3": 20.0,
+          "hora_salida_min": 430,
+          "ventana_inicio_min": 475,
+          "plazo_maximo_min": 505,
+          "zona_habitual": "zona_c_industrial",
+          "ruta_habitual": ["puerto_callao", "nodo_faucett", "nodo_javier_prado", "almacen_central"]
+        }
+      ]
+    },
+    {
+      "id": "emergencia_quiebre_stock",
+      "nombre": "Escenario 4: Emergencia de Quiebre de Stock y Control de Sobrealmacenamiento",
+      "descripcion": "Evalúa niveles críticos de stock en cadena de frío e insumos industriales junto con almacenes saturados en granos y empaques, priorizando descargas críticas y bloqueando excesos.",
+      "traffic_overrides": [],
+      "stock_overrides": [
+        { "categoria": "refrigerado", "stock_actual": 25, "stock_minimo": 150, "capacidad_maxima": 600 },
+        { "categoria": "insumos_industriales", "stock_actual": 40, "stock_minimo": 180, "capacidad_maxima": 500 },
+        { "categoria": "granos", "stock_actual": 800, "stock_minimo": 300, "capacidad_maxima": 850 },
+        { "categoria": "empaques", "stock_actual": 510, "stock_minimo": 150, "capacidad_maxima": 520 }
+      ],
+      "custom_orders": []
+    }
+  ]
+}
+

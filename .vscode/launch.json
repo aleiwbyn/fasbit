@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "FASBIT: Iniciar Interfaz Web (Navegador)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "FASBIT: Ejecutar Simulaciones en Consola",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "args": ["simulate"],
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "FASBIT: Ver Planificación Óptima en Consola",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "args": ["plan"],
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "FASBIT: Estado del Motor Prolog e Inventario",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "args": ["status"],
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}
+
