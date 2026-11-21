@@ -165,8 +165,8 @@ def crear_entrega(
     codigo_orden: str,
     proveedor: Proveedor,
     hora_cita: str,
-    hora_llegada: str | None,
-    criticidad: str,
+    hora_llegada: str | None = None,
+    criticidad: str = "alta",
     no_presentado: bool = False,
     observacion: str = "",
 ) -> Entrega:
@@ -185,13 +185,9 @@ def crear_entrega(
     parsear_hora_a_minutos(cita_limpia)
 
     llegada_limpia: str | None
-    if no_presentado:
+    if no_presentado or hora_llegada is None or not hora_llegada.strip():
         llegada_limpia = None
     else:
-        if hora_llegada is None or not hora_llegada.strip():
-            raise ValueError(
-                "Escribe a qué hora llegó o marca la casilla si no vino."
-            )
         llegada_limpia = hora_llegada.strip()
         parsear_hora_a_minutos(llegada_limpia)
 

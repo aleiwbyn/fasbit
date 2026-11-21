@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from fasbit.modelos.proveedor_modelo import Proveedor
 
-ESTADOS_ARRIBO: tuple[str, ...] = (
+ESTADOS_ARRIBO = (
     "a_tiempo",
     "dentro_de_tolerancia",
     "retraso_leve",
@@ -12,7 +12,10 @@ ESTADOS_ARRIBO: tuple[str, ...] = (
     "no_presentado",
 )
 
-ACCIONES_OPERATIVAS: tuple[str, ...] = (
+ESTADO_PENDIENTE: str = "pendiente"
+ACCION_PENDIENTE: str = "pendiente"
+
+ACCIONES_OPERATIVAS = (
     "admision_prioritaria",
     "admision_estandar",
     "reprogramacion_urgente",

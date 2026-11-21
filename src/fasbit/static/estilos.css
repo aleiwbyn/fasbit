@@ -276,6 +276,21 @@ a {
   max-width: 68ch;
 }
 
+.cabecera-con-acciones {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cabecera-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
 /* Banda telemétrica KPI */
 .banda-kpis {
   background: var(--panel);
@@ -346,6 +361,7 @@ a {
 .seg-retraso_leve { background: var(--leve-punto); border-radius: 2px; }
 .seg-retraso_grave { background: var(--grave-punto); border-radius: 2px; }
 .seg-no_presentado { background: var(--ausente-punto); border-radius: 2px; }
+.seg-pendiente { background: #8c887d; border-radius: 2px; }
 
 .banda-desglose {
   border-top: 1px solid var(--linea);
@@ -680,6 +696,13 @@ select:focus {
 .estado-no_presentado .punto-estado,
 .estado-inactivo .punto-estado { background: var(--ausente-punto); }
 
+.estado-pendiente,
+.accion-pendiente {
+  background: var(--panel-sutil);
+  color: var(--tinta-sec);
+}
+.estado-pendiente .punto-estado { background: #78746a; }
+
 /* Tablas con ritmo de tablero horario */
 .barra-filtros {
   padding-bottom: 1rem;
@@ -787,6 +810,18 @@ select:focus {
   background: var(--ok-fondo);
   border-color: #bde2ca;
   color: var(--ok-texto);
+}
+
+.aviso-exito p {
+  margin: 0;
+}
+
+.acciones-celda {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
 }
 
 .estado-vacio {
@@ -973,5 +1008,9 @@ body.vista-login {
   }
   .usuario-info {
     display: none;
+  }
+  .barra-izquierda {
+    gap: 1rem;
+    flex-wrap: wrap;
   }
 }

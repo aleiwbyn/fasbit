@@ -72,11 +72,88 @@ def _construir_datos_panel(
 @recepcion_bp.get("/recepcion")
 @requiere_sesion
 def panel() -> str:
-    """Vista principal del control de recepción del turno."""
+    """Vista principal con el resumen y la lista filtrable de entregas."""
     entregas = cargar_entregas(current_app.config["RUTA_ENTREGAS"])
     filtros = _leer_filtros()
     contexto = _construir_datos_panel(entregas, filtros)
     return render_template("recepcion.html", **contexto)
+
+
+@recepcion_bp.get("/recepcion/llegada")
+@requiere_sesion
+def llegada() -> str:
+    """Vista dedicada para anotar o probar la hora de llegada de una entrega."""
+    entregas = cargar_entregas(current_app.config["RUTA_ENTREGAS"])
+    id_seleccionada = request.args.get("id_entrega", "").strip()
+    return render_template(
+        "llegada.html",
+        entregas=entregas,
+        id_seleccionada=id_seleccionada,
+    )
+
+
+@recepcion_bp.get("/recepcion/nueva")
+@requiere_sesion
+def nueva_entrega() -> str:
+    """Vista dedicada para programar una entrega nueva en estado pendiente."""
+    entregas = cargar_entregas(current_app.config["RUTA_ENTREGAS"])
+    return render_template(
+        "nueva_entrega.html",
+        proveedores=obtener_proveedores_unicos(entregas),
+        entrega_creada=None,
+        error=None,
+        datos_form={},
+    )
+
+
+@recepcion_bp.post("/recepcion/nueva")
+@requiere_sesion
+def crear_nueva_entrega() -> Any:
+    """Registra una entrega programada nueva sin requerir hora de llegada aún."""
+    ruta_entregas = current_app.config["RUTA_ENTREGAS"]
+    entregas = cargar_entregas(ruta_entregas)
+    proveedores = obtener_proveedores_unicos(entregas)
+
+    try:
+        id_proveedor = request.form.get("id_proveedor", "").strip()
+        proveedor = next(
+            filter(lambda item: item.id_proveedor == id_proveedor, proveedores),
+            None,
+        )
+        if proveedor is None:
+            raise ValueError("Elige una empresa de la lista.")
+
+        nueva = crear_entrega(
+            entregas_existentes=entregas,
+            codigo_orden=request.form.get("codigo_orden", ""),
+            proveedor=proveedor,
+            hora_cita=request.form.get("hora_cita", ""),
+            hora_llegada=None,
+            criticidad=request.form.get("criticidad", ""),
+            no_presentado=False,
+            observacion="",
+        )
+        actualizadas = agregar_entrega_a_coleccion(entregas, nueva)
+        guardar_entregas(ruta_entregas, actualizadas)
+    except ValueError as exc:
+        return (
+            render_template(
+                "nueva_entrega.html",
+                proveedores=proveedores,
+                entrega_creada=None,
+                error=str(exc),
+                datos_form=request.form,
+            ),
+            400,
+        )
+
+    return render_template(
+        "nueva_entrega.html",
+        proveedores=proveedores,
+        entrega_creada=nueva,
+        error=None,
+        datos_form={},
+    )
 
 
 @recepcion_bp.get("/recepcion/tabla")
@@ -181,9 +258,15 @@ def evaluar() -> Any:
                 error=str(exc),
                 incluir_oob=False,
             )
-        contexto = _construir_datos_panel(entregas, filtros)
-        contexto["error_evaluacion"] = str(exc)
-        return render_template("recepcion.html", **contexto), 400
+        return (
+            render_template(
+                "llegada.html",
+                entregas=entregas,
+                id_seleccionada=request.form.get("id_entrega", "").strip(),
+                error_evaluacion=str(exc),
+            ),
+            400,
+        )
 
     contexto = _construir_datos_panel(entregas_para_panel, filtros)
     hora_base = evaluacion.entrega.hora_llegada or evaluacion.entrega.hora_cita
@@ -203,13 +286,19 @@ def evaluar() -> Any:
             incluir_oob=(modo == "guardar"),
             kpis=contexto["kpis"],
             evaluaciones=contexto["evaluaciones"],
+            entregas=contexto["entregas"],
+            id_seleccionada=evaluacion.entrega.id_entrega,
             filtros=filtros,
         )
 
-    contexto["evaluacion_resultado"] = evaluacion
-    contexto["modo_resultado"] = modo
-    contexto["ventanas_sugeridas"] = ventanas_sugeridas
-    return render_template("recepcion.html", **contexto)
+    return render_template(
+        "llegada.html",
+        entregas=entregas_para_panel,
+        id_seleccionada=evaluacion.entrega.id_entrega,
+        evaluacion_resultado=evaluacion,
+        modo_resultado=modo,
+        ventanas_sugeridas=ventanas_sugeridas,
+    )
 
 
 @recepcion_bp.post("/recepcion/entregas/<id_entrega>/eliminar")

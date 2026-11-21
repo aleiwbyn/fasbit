@@ -6,6 +6,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from typing import Generic, TypeVar
 
 from fasbit.modelos.entrega_modelo import (
+    ESTADO_PENDIENTE,
     ESTADOS_ARRIBO,
     ESTADOS_CUMPLIMIENTO_SLA,
     Entrega,
@@ -83,6 +84,9 @@ def calcular_multa_entrega(
     minutos_exceso: int,
 ) -> float:
     """Calcula la multa en soles según el estado de arribo y minutos de exceso."""
+    if estado_arribo == ESTADO_PENDIENTE:
+        return 0.0
+
     if estado_arribo not in ESTADOS_ARRIBO:
         raise ValueError(f"Estado de arribo no reconocido: '{estado_arribo}'.")
 
@@ -111,7 +115,7 @@ def evaluar_entrega(entrega: Entrega) -> EvaluacionEntrega:
     )
     minutos_exceso = (
         0
-        if estado_arribo == "no_presentado"
+        if estado_arribo in ("no_presentado", ESTADO_PENDIENTE)
         else calcular_minutos_exceso(
             minutos_retraso, entrega.proveedor.tolerancia_minutos
         )

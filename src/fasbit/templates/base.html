@@ -27,9 +27,25 @@
           <li>
             <a
               href="{{ url_for('recepcion.panel') }}"
-              class="nav-enlace {% if request.endpoint and request.endpoint.startswith('recepcion.') %}activo{% endif %}"
+              class="nav-enlace {% if request.endpoint == 'recepcion.panel' %}activo{% endif %}"
             >
               Entregas
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('recepcion.llegada') }}"
+              class="nav-enlace {% if request.endpoint in ('recepcion.llegada', 'recepcion.evaluar') %}activo{% endif %}"
+            >
+              Anotar llegada
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('recepcion.nueva_entrega') }}"
+              class="nav-enlace {% if request.endpoint in ('recepcion.nueva_entrega', 'recepcion.crear_nueva_entrega') %}activo{% endif %}"
+            >
+              Nueva entrega
             </a>
           </li>
           {% if usuario_actual.rol == 'admin' %}

@@ -22,6 +22,7 @@ ETIQUETAS_ESTADO: dict[str, str] = {
     "retraso_leve": "Retraso leve",
     "retraso_grave": "Retraso grave",
     "no_presentado": "No vino",
+    "pendiente": "Pendiente",
 }
 
 ETIQUETAS_ACCION: dict[str, str] = {
@@ -30,6 +31,7 @@ ETIQUETAS_ACCION: dict[str, str] = {
     "reprogramacion_urgente": "Reprogramar urgente",
     "recepcion_fin_turno": "Al final del día",
     "rechazo_o_cancelacion": "Cancelar entrega",
+    "pendiente": "En espera",
 }
 
 ETIQUETAS_CRITICIDAD: dict[str, str] = {

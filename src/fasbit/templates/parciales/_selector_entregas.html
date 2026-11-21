@@ -1,0 +1,15 @@
+<select
+  id="selector-entregas"
+  name="id_entrega"
+  {% if oob %}hx-swap-oob="true"{% endif %}
+  required
+>
+  {% for item in entregas %}
+  <option
+    value="{{ item.id_entrega }}"
+    {% if id_seleccionada is defined and id_seleccionada == item.id_entrega %}selected{% endif %}
+  >
+    {{ item.codigo_orden }} · {{ item.proveedor.nombre }} (Cita {{ item.hora_cita }} · Urgencia {{ ETIQUETAS_CRITICIDAD[item.criticidad] | lower }}{% if not item.hora_llegada and not item.no_presentado %} · Pendiente{% endif %})
+  </option>
+  {% endfor %}
+</select>

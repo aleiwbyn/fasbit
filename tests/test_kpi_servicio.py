@@ -81,3 +81,22 @@ def test_kpis_datos_semilla_del_turno() -> None:
     assert len(alertas) == 3
     assert all(a.activa for a in alertas)
     assert kpis.alertas_turno == alertas
+
+
+def test_kpis_con_entrega_pendiente_sin_llegada() -> None:
+    proveedor = Proveedor("PROV-1", "Alicorp S.A.A.", "20100055237", 15, 4.0, 450.0)
+    entregas = (
+        Entrega("ENT-001", "OC-1", proveedor, "08:00", "07:55", "alta"),
+        Entrega("ENT-002", "OC-2", proveedor, "09:00", "09:40", "alta"),
+        Entrega("ENT-003", "OC-3", proveedor, "12:00", None, "alta", no_presentado=False),
+    )
+    evaluaciones = liquidar_entregas(entregas)
+    assert evaluaciones[2].estado_arribo == "pendiente"
+    assert evaluaciones[2].multa_soles == 0.0
+
+    kpis = calcular_kpis_turno(evaluaciones)
+    assert kpis.total_entregas == 3
+    assert kpis.total_pendientes == 1
+    assert kpis.total_cumplimiento_sla == 1
+    assert kpis.total_incidencias == 1
+    assert kpis.puntualidad_porcentaje == 50.0

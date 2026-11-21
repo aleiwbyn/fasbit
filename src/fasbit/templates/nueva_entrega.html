@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block titulo %}Nueva entrega — fasbit{% endblock %}
+
+{% block contenido %}
+<section class="cabecera-vista cabecera-con-acciones">
+  <div>
+    <h1>Nueva entrega</h1>
+    <p>Agrega una entrega programada. Cuando llegue la empresa podrás anotar su hora en «Anotar llegada».</p>
+  </div>
+  <div class="cabecera-acciones">
+    <a href="{{ url_for('recepcion.panel') }}" class="btn-sutil">Volver a entregas</a>
+  </div>
+</section>
+
+<section class="panel-sistema">
+  <div class="panel-cabecera">
+    <h2>Datos de la entrega</h2>
+  </div>
+
+  {% if error %}
+  <div class="aviso-error" role="alert">{{ error }}</div>
+  {% endif %}
+
+  {% if entrega_creada %}
+  <div class="aviso-exito" role="status">
+    <p>
+      Se agregó la orden <strong class="mono">{{ entrega_creada.codigo_orden }}</strong>
+      para <strong>{{ entrega_creada.proveedor.nombre }}</strong>
+      (cita {{ entrega_creada.hora_cita }} · estado Pendiente).
+    </p>
+    <div class="barra-acciones">
+      <a href="{{ url_for('recepcion.panel') }}" class="btn-primario btn-chico">Ver lista de entregas</a>
+      <a href="{{ url_for('recepcion.llegada', id_entrega=entrega_creada.id_entrega) }}" class="btn-secundario btn-chico">
+        Anotar llegada
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('recepcion.crear_nueva_entrega') }}">
+    <div class="grid-campos">
+      <label class="campo-ancho">Empresa
+        <select name="id_proveedor" required>
+          {% for prov in proveedores %}
+          <option
+            value="{{ prov.id_proveedor }}"
+            {% if datos_form.get('id_proveedor') == prov.id_proveedor %}selected{% endif %}
+          >
+            {{ prov.nombre }} ({{ prov.tolerancia_minutos }} min de tolerancia · {{ prov.tarifa_minuto_soles | soles }} por min)
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Número de orden
+        <input
+          type="text"
+          name="codigo_orden"
+          value="{{ datos_form.get('codigo_orden', '') }}"
+          placeholder="OC-2026-0111"
+          required
+        >
+      </label>
+
+      <label>Hora acordada
+        <input
+          type="time"
+          name="hora_cita"
+          value="{{ datos_form.get('hora_cita', '12:00') }}"
+          required
+        >
+      </label>
+
+      <label>Urgencia
+        <select name="criticidad" required>
+          {% for crit in CRITICIDADES_VALIDAS %}
+          <option
+            value="{{ crit }}"
+            {% if datos_form.get('criticidad', 'alta') == crit %}selected{% endif %}
+          >
+            {{ ETIQUETAS_CRITICIDAD[crit] }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <div class="barra-acciones">
+      <button type="submit" class="btn-primario">Agregar entrega</button>
+      <a href="{{ url_for('recepcion.panel') }}" class="btn-secundario">Volver a entregas</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

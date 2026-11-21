@@ -23,7 +23,7 @@
           <th>Estado</th>
           <th>Decisión</th>
           <th class="th-derecha">Multa</th>
-          {% if usuario_actual and usuario_actual.rol == 'admin' %}
+          {% if usuario_actual %}
           <th>Opciones</th>
           {% endif %}
         </tr>
@@ -54,12 +54,20 @@
                 {% else %}
                   <span class="delta-ok">(A tiempo)</span>
                 {% endif %}
+              {% elif ev.estado_arribo == 'pendiente' %}
+                Pendiente de llegada
               {% else %}
                 No vino
               {% endif %}
             </span>
           </td>
-          <td class="num">{{ ev.minutos_exceso }} min</td>
+          <td class="num">
+            {% if ev.estado_arribo == 'pendiente' %}
+              —
+            {% else %}
+              {{ ev.minutos_exceso }} min
+            {% endif %}
+          </td>
           <td>
             <span class="indicador-estado estado-{{ ev.estado_arribo }}">
               <span class="punto-estado"></span>
@@ -72,8 +80,15 @@
             </span>
           </td>
           <td class="celda-monto num">{{ ev.multa_soles | soles }}</td>
-          {% if usuario_actual and usuario_actual.rol == 'admin' %}
-          <td>
+          {% if usuario_actual %}
+          <td class="acciones-celda">
+            <a
+              href="{{ url_for('recepcion.llegada', id_entrega=ev.entrega.id_entrega) }}"
+              class="btn-secundario btn-chico"
+            >
+              Anotar
+            </a>
+            {% if usuario_actual.rol == 'admin' %}
             <form
               method="post"
               action="{{ url_for('recepcion.eliminar_entrega', id_entrega=ev.entrega.id_entrega) }}"
@@ -88,6 +103,7 @@
                 Eliminar
               </button>
             </form>
+            {% endif %}
           </td>
           {% endif %}
         </tr>

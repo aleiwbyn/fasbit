@@ -19,7 +19,7 @@
 
   <div class="resultado-datos">
     <span><strong>Hora acordada:</strong> <span class="num">{{ evaluacion.entrega.hora_cita }}</span></span>
-    <span><strong>Llegada:</strong> <span class="num">{{ evaluacion.entrega.hora_llegada if evaluacion.entrega.hora_llegada else "No vino" }}</span></span>
+    <span><strong>Llegada:</strong> <span class="num">{{ "Pendiente" if evaluacion.estado_arribo == "pendiente" else (evaluacion.entrega.hora_llegada if evaluacion.entrega.hora_llegada else "No vino") }}</span></span>
     <span><strong>Retraso total:</strong> <span class="num">{{ evaluacion.minutos_retraso }} min</span></span>
     <span><strong>Minutos con multa:</strong> <span class="num">{{ evaluacion.minutos_exceso }} min</span></span>
     <span><strong>Multa:</strong> <span class="num">{{ evaluacion.multa_soles | soles }}</span></span>
@@ -55,4 +55,7 @@
   {% set oob = true %}
   {% include "parciales/_tarjetas_kpi.html" %}
   {% include "parciales/_tabla_entregas.html" %}
+  {% if entregas is defined %}
+    {% include "parciales/_selector_entregas.html" %}
+  {% endif %}
 {% endif %}

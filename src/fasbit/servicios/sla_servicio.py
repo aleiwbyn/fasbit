@@ -7,7 +7,9 @@ from itertools import islice
 from types import MappingProxyType
 
 from fasbit.modelos.entrega_modelo import (
+    ACCION_PENDIENTE,
     ACCIONES_OPERATIVAS,
+    ESTADO_PENDIENTE,
     ESTADOS_ARRIBO,
     ESTADOS_INCIDENCIA,
 )
@@ -143,16 +145,18 @@ def clasificar_estado_arribo(
     minutos_retraso = calcular_minutos_retraso(hora_cita, hora_llegada, no_presentado)
     minutos_exceso = calcular_minutos_exceso(minutos_retraso, tolerancia_minutos)
 
-    match (no_presentado or hora_llegada is None, minutos_retraso, minutos_exceso):
-        case (True, _, _):
+    match (no_presentado, hora_llegada is None, minutos_retraso, minutos_exceso):
+        case (True, _, _, _):
             return "no_presentado"
-        case (False, retraso, _) if pertenece_intervalo(retraso, INTERVALO_A_TIEMPO):
+        case (False, True, _, _):
+            return ESTADO_PENDIENTE
+        case (False, False, retraso, _) if pertenece_intervalo(retraso, INTERVALO_A_TIEMPO):
             return "a_tiempo"
-        case (False, _, 0):
+        case (False, False, _, 0):
             return "dentro_de_tolerancia"
-        case (False, _, exceso) if pertenece_intervalo(exceso, INTERVALO_RETRASO_LEVE):
+        case (False, False, _, exceso) if pertenece_intervalo(exceso, INTERVALO_RETRASO_LEVE):
             return "retraso_leve"
-        case (False, _, exceso) if pertenece_intervalo(exceso, INTERVALO_RETRASO_GRAVE):
+        case (False, False, _, exceso) if pertenece_intervalo(exceso, INTERVALO_RETRASO_GRAVE):
             return "retraso_grave"
         case _:
             return "retraso_grave"
@@ -161,12 +165,14 @@ def clasificar_estado_arribo(
 @lru_cache(maxsize=64)
 def determinar_accion_operativa(estado_arribo: str, criticidad: str) -> str:
     """Resuelve la acción operativa en almacén desde la matriz declarativa SLA."""
-    if estado_arribo not in ESTADOS_ARRIBO:
-        raise ValueError(f"Estado de arribo no reconocido: '{estado_arribo}'.")
     if criticidad not in CRITICIDADES_VALIDAS:
         raise ValueError(
             f"Criticidad inválida: '{criticidad}'. Valores válidos: alta, media, baja."
         )
+    if estado_arribo == ESTADO_PENDIENTE:
+        return ACCION_PENDIENTE
+    if estado_arribo not in ESTADOS_ARRIBO:
+        raise ValueError(f"Estado de arribo no reconocido: '{estado_arribo}'.")
     return REGLAS_ACCION_OPERATIVA[(estado_arribo, criticidad)]
 
 
@@ -176,10 +182,15 @@ def explicar_regla_operativa(
     accion_operativa: str,
 ) -> str:
     """Genera una explicación breve y legible de la regla SLA aplicada."""
-    if estado_arribo not in ESTADOS_ARRIBO:
-        raise ValueError(f"Estado de arribo no reconocido: '{estado_arribo}'.")
     if criticidad not in CRITICIDADES_VALIDAS:
         raise ValueError(f"Criticidad inválida: '{criticidad}'.")
+    if estado_arribo == ESTADO_PENDIENTE and accion_operativa == ACCION_PENDIENTE:
+        return (
+            f"Entrega programada con urgencia {criticidad}; "
+            "registra la hora cuando llegue la empresa."
+        )
+    if estado_arribo not in ESTADOS_ARRIBO:
+        raise ValueError(f"Estado de arribo no reconocido: '{estado_arribo}'.")
     if accion_operativa not in ACCIONES_OPERATIVAS:
         raise ValueError(f"Acción operativa no reconocida: '{accion_operativa}'.")
 

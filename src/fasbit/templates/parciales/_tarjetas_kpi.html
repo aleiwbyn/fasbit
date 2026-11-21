@@ -4,7 +4,11 @@
       <span class="metrica-etiqueta">Llegaron a tiempo</span>
       <span class="metrica-valor">{{ "%.1f"|format(kpis.puntualidad_porcentaje) }}%</span>
       <span class="metrica-sub">
-        {{ kpis.total_cumplimiento_sla }} de {{ kpis.total_entregas }} entregas cumplieron el horario
+        {% if kpis.total_pendientes > 0 %}
+          {{ kpis.total_cumplimiento_sla }} de {{ kpis.total_entregas - kpis.total_pendientes }} evaluadas ({{ kpis.total_pendientes }} pendiente{{ 's' if kpis.total_pendientes != 1 else '' }})
+        {% else %}
+          {{ kpis.total_cumplimiento_sla }} de {{ kpis.total_entregas }} entregas cumplieron el horario
+        {% endif %}
       </span>
     </div>
 
@@ -38,6 +42,13 @@
         ></div>
         {% endif %}
       {% endfor %}
+      {% if kpis.total_pendientes > 0 %}
+      <div
+        class="seg-pendiente"
+        style="flex-grow: {{ kpis.total_pendientes }};"
+        title="{{ ETIQUETAS_ESTADO['pendiente'] }}: {{ kpis.total_pendientes }}"
+      ></div>
+      {% endif %}
     {% else %}
       <div class="barra-vacia"></div>
     {% endif %}
@@ -53,6 +64,13 @@
         <strong>{{ kpis.conteo_por_estado[est] }}</strong>
       </span>
       {% endfor %}
+      {% if kpis.total_pendientes > 0 %}
+      <span class="chip-dato">
+        <span class="punto-estado seg-pendiente"></span>
+        {{ ETIQUETAS_ESTADO['pendiente'] }}
+        <strong>{{ kpis.total_pendientes }}</strong>
+      </span>
+      {% endif %}
     </div>
 
     <div class="fila-resumen">

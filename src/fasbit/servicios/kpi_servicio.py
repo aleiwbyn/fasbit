@@ -8,6 +8,7 @@ from types import MappingProxyType
 
 from fasbit.modelos.entrega_modelo import (
     ACCIONES_OPERATIVAS,
+    ESTADO_PENDIENTE,
     ESTADOS_ARRIBO,
     ESTADOS_CUMPLIMIENTO_SLA,
     EvaluacionEntrega,
@@ -37,6 +38,7 @@ class ResumenKpi:
     conteo_por_estado: Mapping[str, int]
     conteo_por_accion: Mapping[str, int]
     alertas_turno: tuple[AlertaLogica, ...] = ()
+    total_pendientes: int = 0
 
 
 @dataclass(frozen=True)
@@ -50,6 +52,7 @@ class _AcumuladorKpi:
     total_presentados: int
     por_estado: Mapping[str, int]
     por_accion: Mapping[str, int]
+    total_pendientes: int = 0
 
 
 def _acumular_retrasos_tupla(
@@ -60,7 +63,11 @@ def _acumular_retrasos_tupla(
     if not tupla:
         return acumulado
     cabeza, cola = tupla[0], tupla[1:]
-    aporte = cabeza.minutos_retraso if cabeza.estado_arribo != "no_presentado" else 0
+    aporte = (
+        cabeza.minutos_retraso
+        if cabeza.estado_arribo not in ("no_presentado", ESTADO_PENDIENTE)
+        else 0
+    )
     return _acumular_retrasos_tupla(cola, acumulado + aporte)
 
 
@@ -117,6 +124,7 @@ def _crear_acumulador_inicial() -> _AcumuladorKpi:
         total_presentados=0,
         por_estado=MappingProxyType({estado: 0 for estado in ESTADOS_ARRIBO}),
         por_accion=MappingProxyType({accion: 0 for accion in ACCIONES_OPERATIVAS}),
+        total_pendientes=0,
     )
 
 
@@ -125,6 +133,18 @@ def _acumular_evaluacion(
     evaluacion: EvaluacionEntrega,
 ) -> _AcumuladorKpi:
     """Paso puro de reducción que retorna un nuevo acumulador sin mutar el previo."""
+    if evaluacion.estado_arribo == ESTADO_PENDIENTE:
+        return _AcumuladorKpi(
+            total_entregas=acumulado.total_entregas + 1,
+            total_cumplimiento_sla=acumulado.total_cumplimiento_sla,
+            total_incidencias=acumulado.total_incidencias,
+            suma_multas=acumulado.suma_multas,
+            total_presentados=acumulado.total_presentados,
+            por_estado=acumulado.por_estado,
+            por_accion=acumulado.por_accion,
+            total_pendientes=acumulado.total_pendientes + 1,
+        )
+
     es_cumplimiento = evaluacion.estado_arribo in ESTADOS_CUMPLIMIENTO_SLA
     se_presento = evaluacion.estado_arribo != "no_presentado"
 
@@ -149,6 +169,7 @@ def _acumular_evaluacion(
         total_presentados=acumulado.total_presentados + (1 if se_presento else 0),
         por_estado=MappingProxyType(nuevo_por_estado),
         por_accion=MappingProxyType(nuevo_por_accion),
+        total_pendientes=acumulado.total_pendientes,
     )
 
 
@@ -160,9 +181,10 @@ def calcular_kpis_turno(
     final = reduce(_acumular_evaluacion, tupla, _crear_acumulador_inicial())
     suma_retraso_presentados = acumular_retrasos_cola(tupla)
 
+    total_evaluadas = final.total_entregas - final.total_pendientes
     puntualidad = (
-        round((final.total_cumplimiento_sla / final.total_entregas) * 100, 2)
-        if final.total_entregas > 0
+        round((final.total_cumplimiento_sla / total_evaluadas) * 100, 2)
+        if total_evaluadas > 0
         else 0.0
     )
     promedio_retraso = (
@@ -181,4 +203,5 @@ def calcular_kpis_turno(
         conteo_por_estado=final.por_estado,
         conteo_por_accion=final.por_accion,
         alertas_turno=verificar_alertas_turno(tupla),
+        total_pendientes=final.total_pendientes,
     )

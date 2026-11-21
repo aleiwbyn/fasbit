@@ -68,6 +68,21 @@ def test_clasificar_estado_arribo_y_frontera_30_minutos() -> None:
         clasificar_estado_arribo("08:00", None, 15, no_presentado=True)
         == "no_presentado"
     )
+    assert (
+        clasificar_estado_arribo("08:00", None, 15, no_presentado=False)
+        == "pendiente"
+    )
+
+
+def test_estado_pendiente_reglas_y_cumplimiento() -> None:
+    assert clasificar_estado_arribo("12:00", None, 15, no_presentado=False) == "pendiente"
+    assert determinar_accion_operativa("pendiente", "alta") == "pendiente"
+    assert determinar_accion_operativa("pendiente", "media") == "pendiente"
+    assert determinar_accion_operativa("pendiente", "baja") == "pendiente"
+    assert es_incidencia_sla("pendiente") is False
+    assert es_cumplimiento_sla("pendiente") is False
+    explicacion = explicar_regla_operativa("pendiente", "alta", "pendiente")
+    assert "alta" in explicacion
 
 
 @pytest.mark.parametrize(

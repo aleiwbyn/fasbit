@@ -301,6 +301,8 @@ def test_ui_sin_rastros_tecnologicos(cliente_temporal) -> None:
     html_login = cliente.get("/login").get_data(as_text=True)
     _iniciar_sesion(cliente, "admin", "admin123")
     html_recepcion = cliente.get("/recepcion").get_data(as_text=True)
+    html_llegada = cliente.get("/recepcion/llegada").get_data(as_text=True)
+    html_nueva = cliente.get("/recepcion/nueva").get_data(as_text=True)
     html_usuarios = cliente.get("/usuarios").get_data(as_text=True)
     html_eval_sim = cliente.post(
         "/recepcion/evaluar",
@@ -324,12 +326,62 @@ def test_ui_sin_rastros_tecnologicos(cliente_temporal) -> None:
     for empresa in empresas_reales:
         assert empresa in html_recepcion
 
-    for html in (html_login, html_recepcion, html_usuarios, html_eval_sim):
+    for html in (
+        html_login,
+        html_recepcion,
+        html_llegada,
+        html_nueva,
+        html_usuarios,
+        html_eval_sim,
+    ):
         extractor = _ExtractorTexto()
         extractor.feed(html)
         texto_visible = " ".join(extractor.partes).lower()
         for rastro in rastros:
             assert rastro not in texto_visible, f"Rastro '{rastro}' visible en UI"
+
+
+def test_vistas_separadas_nueva_entrega_pendiente_y_llegada(cliente_temporal) -> None:
+    cliente, ruta_entregas, _ = cliente_temporal
+    _iniciar_sesion(cliente, "operador", "operador123")
+
+    resp_nueva_get = cliente.get("/recepcion/nueva")
+    html_nueva_get = resp_nueva_get.get_data(as_text=True)
+    assert resp_nueva_get.status_code == 200
+    assert "Número de orden" in html_nueva_get
+    assert "¿A qué hora llegó?" not in html_nueva_get
+    assert "Nota (opcional)" not in html_nueva_get
+    assert "La empresa no vino" not in html_nueva_get
+
+    resp_nueva_post = cliente.post(
+        "/recepcion/nueva",
+        data={
+            "id_proveedor": "PROV-02",
+            "codigo_orden": "OC-2026-0999",
+            "hora_cita": "14:00",
+            "criticidad": "alta",
+        },
+    )
+    assert resp_nueva_post.status_code == 200
+    assert "OC-2026-0999" in resp_nueva_post.get_data(as_text=True)
+    assert "Pendiente" in resp_nueva_post.get_data(as_text=True)
+
+    entregas_guardadas = cargar_entregas(ruta_entregas)
+    assert len(entregas_guardadas) == 11
+    creada = entregas_guardadas[-1]
+    assert creada.codigo_orden == "OC-2026-0999"
+    assert creada.hora_llegada is None
+    assert creada.no_presentado is False
+
+    html_recepcion = cliente.get("/recepcion").get_data(as_text=True)
+    assert "OC-2026-0999" in html_recepcion
+    assert "Pendiente de llegada" in html_recepcion
+
+    resp_llegada = cliente.get(f"/recepcion/llegada?id_entrega={creada.id_entrega}")
+    html_llegada = resp_llegada.get_data(as_text=True)
+    assert resp_llegada.status_code == 200
+    assert "OC-2026-0999" in html_llegada
+    assert "¿A qué hora llegó?" in html_llegada
 
 
 def test_ejecucion_directa_main_sin_paquete_instalado() -> None:

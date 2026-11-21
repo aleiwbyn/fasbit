@@ -2,128 +2,20 @@
 {% block titulo %}Entregas — fasbit{% endblock %}
 
 {% block contenido %}
-<section class="cabecera-vista">
-  <h1>Entregas de hoy</h1>
-  <p>Revisa qué empresas llegaron a tiempo, qué hacer con cada entrega y cuánto corresponde de multa.</p>
+<section class="cabecera-vista cabecera-con-acciones">
+  <div>
+    <h1>Entregas de hoy</h1>
+    <p>Revisa qué empresas llegaron a tiempo, qué hacer con cada entrega y cuánto corresponde de multa.</p>
+  </div>
+  <div class="cabecera-acciones">
+    <a href="{{ url_for('recepcion.llegada') }}" class="btn-secundario">Anotar llegada</a>
+    <a href="{{ url_for('recepcion.nueva_entrega') }}" class="btn-primario">Nueva entrega</a>
+  </div>
 </section>
 
 {% with oob=false %}
   {% include "parciales/_tarjetas_kpi.html" %}
 {% endwith %}
-
-<section class="panel-sistema">
-  <div class="panel-cabecera">
-    <h2>Anotar una llegada</h2>
-    <span class="panel-subtitulo">Elige una entrega para guardar su hora de llegada, o prueba primero sin guardar.</span>
-  </div>
-
-  <form
-    method="post"
-    action="{{ url_for('recepcion.evaluar') }}"
-    hx-post="{{ url_for('recepcion.evaluar') }}"
-    hx-target="#resultado-evaluacion"
-    hx-include="#form-filtros"
-  >
-    <input type="hidden" name="tipo_operacion" value="existente">
-
-    <div class="grid-campos">
-      <label class="campo-ancho">Entrega
-        <select name="id_entrega" required>
-          {% for item in entregas %}
-          <option value="{{ item.id_entrega }}">
-            {{ item.codigo_orden }} · {{ item.proveedor.nombre }} (Cita {{ item.hora_cita }} · Urgencia {{ ETIQUETAS_CRITICIDAD[item.criticidad] | lower }})
-          </option>
-          {% endfor %}
-        </select>
-      </label>
-
-      <label>¿A qué hora llegó?
-        <input type="time" name="hora_llegada" value="08:00">
-      </label>
-
-      <label>Nota (opcional)
-        <input type="text" name="observacion" placeholder="Ej. Demora en la puerta">
-      </label>
-    </div>
-
-    <label class="casilla-linea">
-      <input type="checkbox" name="no_presentado" value="1">
-      La empresa no vino (se cobra multa por falta)
-    </label>
-
-    <div class="barra-acciones">
-      <button type="submit" name="modo" value="guardar" class="btn-primario">Guardar llegada</button>
-      <button type="submit" name="modo" value="simular" class="btn-secundario">Probar sin guardar</button>
-    </div>
-  </form>
-
-  <details class="desplegable-nueva">
-    <summary>Agregar una entrega nueva</summary>
-    <form
-      method="post"
-      action="{{ url_for('recepcion.evaluar') }}"
-      hx-post="{{ url_for('recepcion.evaluar') }}"
-      hx-target="#resultado-evaluacion"
-      hx-include="#form-filtros"
-    >
-      <input type="hidden" name="tipo_operacion" value="nueva">
-
-      <div class="grid-campos">
-        <label class="campo-ancho">Empresa
-          <select name="id_proveedor" required>
-            {% for prov in proveedores %}
-            <option value="{{ prov.id_proveedor }}">
-              {{ prov.nombre }} ({{ prov.tolerancia_minutos }} min de tolerancia · {{ prov.tarifa_minuto_soles | soles }} por min)
-            </option>
-            {% endfor %}
-          </select>
-        </label>
-
-        <label>Número de orden
-          <input type="text" name="codigo_orden" placeholder="OC-2026-0111" required>
-        </label>
-
-        <label>Hora acordada
-          <input type="time" name="hora_cita" value="12:00" required>
-        </label>
-
-        <label>Urgencia
-          <select name="criticidad" required>
-            {% for crit in CRITICIDADES_VALIDAS %}
-            <option value="{{ crit }}">{{ ETIQUETAS_CRITICIDAD[crit] }}</option>
-            {% endfor %}
-          </select>
-        </label>
-
-        <label>¿A qué hora llegó?
-          <input type="time" name="hora_llegada" value="12:10">
-        </label>
-
-        <label>Nota (opcional)
-          <input type="text" name="observacion" placeholder="Comentario opcional">
-        </label>
-      </div>
-
-      <label class="casilla-linea">
-        <input type="checkbox" name="no_presentado" value="1">
-        La empresa no vino
-      </label>
-
-      <div class="barra-acciones">
-        <button type="submit" name="modo" value="guardar" class="btn-primario">Guardar nueva entrega</button>
-        <button type="submit" name="modo" value="simular" class="btn-secundario">Probar sin guardar</button>
-      </div>
-    </form>
-  </details>
-
-  <div id="resultado-evaluacion">
-    {% if evaluacion_resultado is defined or error_evaluacion is defined %}
-      {% with evaluacion=evaluacion_resultado|default(none), modo=modo_resultado|default('guardar'), error=error_evaluacion|default(none), incluir_oob=false %}
-        {% include "parciales/_resultado_evaluacion.html" %}
-      {% endwith %}
-    {% endif %}
-  </div>
-</section>
 
 <section class="panel-sistema">
   <div class="panel-cabecera">
@@ -159,6 +51,9 @@
             {{ ETIQUETAS_ESTADO[est] }}
           </option>
           {% endfor %}
+          <option value="pendiente" {% if filtros.estado == 'pendiente' %}selected{% endif %}>
+            {{ ETIQUETAS_ESTADO['pendiente'] }}
+          </option>
         </select>
       </label>
 

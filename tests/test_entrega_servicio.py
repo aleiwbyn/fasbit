@@ -116,6 +116,18 @@ def test_actualizar_crear_y_reemplazar_sin_mutar_original() -> None:
     )
     assert nueva.id_entrega == "ENT-004"
 
+    pendiente = crear_entrega(
+        entregas,
+        codigo_orden="OC-106",
+        proveedor=proveedores[0],
+        hora_cita="12:00",
+        hora_llegada=None,
+        criticidad="alta",
+        no_presentado=False,
+    )
+    assert pendiente.hora_llegada is None
+    assert pendiente.no_presentado is False
+
     con_reemplazo = reemplazar_entrega_en_coleccion(entregas, actualizada)
     assert con_reemplazo[0].hora_llegada == "10:25"
     assert entregas[0].hora_llegada == "10:00"
