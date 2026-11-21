@@ -43,11 +43,13 @@ fasbit/
 ## Instalación y Ejecución
 
 ```powershell
-# 1. Instalar el paquete en modo editable
-pip install -e .
+# 1. Instalar dependencias y registrar el paquete desde la raíz del proyecto
+python -m pip install -e .
 
 # 2. Iniciar la aplicación web (http://127.0.0.1:5000)
 python -m fasbit
+# También puedes ejecutar directamente (o usar ▶ Run en VS Code):
+python src/fasbit/__main__.py
 
 # 3. Ejecutar las pruebas unitarias y de integración
 pytest -v

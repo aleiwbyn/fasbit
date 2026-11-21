@@ -330,3 +330,48 @@ def test_ui_sin_rastros_tecnologicos(cliente_temporal) -> None:
         texto_visible = " ".join(extractor.partes).lower()
         for rastro in rastros:
             assert rastro not in texto_visible, f"Rastro '{rastro}' visible en UI"
+
+
+def test_ejecucion_directa_main_sin_paquete_instalado() -> None:
+    import subprocess
+    import sys
+
+    ruta_main = Path(__file__).resolve().parents[1] / "src" / "fasbit" / "__main__.py"
+    ruta_src = ruta_main.parents[1]
+    codigo = f"""
+import importlib.util
+import sys
+from pathlib import Path
+
+ruta_main = Path({str(ruta_main)!r})
+ruta_src = Path({str(ruta_src)!r})
+sys.path = [
+    p for p in sys.path
+    if p and "fasbit" not in p.lower() and Path(p).resolve() != ruta_src
+]
+sys.meta_path = [
+    m for m in sys.meta_path
+    if "fasbit" not in repr(m).lower()
+    and "fasbit" not in getattr(type(m), "__module__", "").lower()
+]
+for nombre in list(sys.modules):
+    if nombre == "fasbit" or nombre.startswith("fasbit."):
+        del sys.modules[nombre]
+
+spec = importlib.util.spec_from_file_location("__main_directo__", ruta_main)
+assert spec is not None and spec.loader is not None
+modulo = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(modulo)
+
+import fasbit
+assert str(ruta_src) in sys.path
+assert Path(fasbit.__file__).resolve().parents[1] == ruta_src
+assert callable(modulo.crear_app)
+"""
+    resultado = subprocess.run(
+        [sys.executable, "-c", codigo],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert resultado.returncode == 0, resultado.stderr

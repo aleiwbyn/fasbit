@@ -1,8 +1,22 @@
 """Punto de entrada CLI para ejecutar la aplicación web fasbit."""
 
 import os
+import sys
+from pathlib import Path
 
-from fasbit.app import crear_app
+if __package__ in (None, ""):
+    ruta_src = str(Path(__file__).resolve().parent.parent)
+    if ruta_src not in sys.path:
+        sys.path.insert(0, ruta_src)
+
+try:
+    from fasbit.app import crear_app
+except ModuleNotFoundError as exc:
+    raise SystemExit(
+        f"No se encontró el módulo '{exc.name}'. "
+        "Instala las dependencias desde la carpeta raíz ejecutando: "
+        "python -m pip install -e ."
+    ) from exc
 
 
 def main() -> None:
