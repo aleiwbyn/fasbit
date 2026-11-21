@@ -1,0 +1,395 @@
+================================================================================
+PROYECTO: fasbit — Sistema de Control de Entregas y Penalidades Logísticas
+DOCUMENTO: Requerimientos Funcionales, No Funcionales y Cronograma por Sprints
+================================================================================
+
+--------------------------------------------------------------------------------
+PARTE 1: REQUERIMIENTOS FUNCIONALES (RF)
+--------------------------------------------------------------------------------
+
+1. ACCESO, SESIONES Y CONTROL DE ROLES
+--------------------------------------
+RF-01 | Inicio de sesión con validación de cuenta activa
+  El sistema debe permitir el ingreso mediante usuario (sin distinguir
+  mayúsculas o minúsculas) y contraseña, verificando que la cuenta exista y
+  se encuentre activa antes de habilitar el acceso.
+
+RF-02 | Cierre de sesión seguro
+  El sistema debe proporcionar una opción visible para cerrar la sesión en
+  cualquier momento, limpiando la sesión activa y redirigiendo a la pantalla
+  de ingreso (/login).
+
+RF-03 | Protección de rutas privadas
+  Todas las vistas y acciones operativas deben exigir una sesión válida y
+  cuenta activa en cada solicitud. Si la sesión expiró o la cuenta fue
+  desactivada, el sistema debe redirigir automáticamente a /login.
+
+RF-04 | Control de acceso según tipo de cuenta (rol)
+  El sistema debe diferenciar dos roles con permisos definidos:
+  - Administrador: acceso completo al panel de entregas, registro de llegadas,
+    alta y eliminación de entregas, indicadores y gestión de usuarios.
+  - Operador: acceso a la lista de entregas, filtros, indicadores, alta de
+    entregas y registro/prueba de llegadas; sin acceso a Usuarios ni a
+    eliminación de entregas (error 403 si intenta acceder).
+
+2. GESTIÓN DE USUARIOS (EXCLUSIVO ADMINISTRADOR)
+------------------------------------------------
+RF-05 | Listado de usuarios registrados
+  El administrador debe poder consultar la lista de cuentas existentes con su
+  identificador (USR-XX), usuario, nombre completo, tipo de cuenta y estado
+  (Activo o Inactivo).
+
+RF-06 | Creación de nuevas cuentas
+  El administrador debe poder registrar nuevos usuarios validando que el
+  nombre de usuario sea único y no contenga espacios, que el nombre completo no
+  esté vacío, que el rol sea válido y que la contraseña tenga al menos 6
+  caracteres.
+
+RF-07 | Cambio de tipo de cuenta (rol)
+  El administrador debe poder cambiar el rol de otros usuarios entre
+  Administrador y Operador. El sistema debe impedir que el administrador en
+  sesión cambie su propio rol o deje el sistema sin administradores activos.
+
+RF-08 | Activación y desactivación de cuentas
+  El administrador debe poder activar o desactivar cuentas existentes. El
+  sistema debe impedir que el administrador en sesión se desactive a sí mismo
+  o desactive al último administrador activo.
+
+3. PROGRAMACIÓN Y REGISTRO DE ENTREGAS
+--------------------------------------
+RF-09 | Programar nueva entrega en estado Pendiente
+  Desde el submenú "Nueva entrega" (/recepcion/nueva), el usuario debe poder
+  registrar una entrega programada ingresando únicamente: Empresa, Número de
+  orden (normalizado automáticamente a mayúsculas y sin espacios), Hora
+  acordada (HH:MM) y Nivel de urgencia (Alta, Media o Baja). La entrega debe
+  generar su código correlativo ENT-XXX y guardarse como Pendiente (En espera,
+  multa S/ 0.00), sin solicitar hora de llegada ni notas en ese momento.
+
+RF-10 | Anotar llegada o inasistencia de una entrega existente
+  Desde el submenú "Anotar llegada" (/recepcion/llegada) o mediante el botón
+  "Anotar" en cada fila de la tabla, el usuario debe poder seleccionar una
+  entrega, ingresar su hora real de llegada (HH:MM) y una nota opcional, o
+  marcar la casilla "La empresa no vino" para guardar el resultado en el turno.
+
+RF-11 | Simulación previa sin guardar ("Probar sin guardar")
+  Al registrar una llegada, el sistema debe permitir simular el cálculo antes
+  de persistir cambios, mostrando el estado resultante, la decisión, los minutos
+  con multa, el monto en soles y las recomendaciones de horario sin alterar los
+  datos guardados ni los indicadores del día.
+
+RF-12 | Eliminación de entregas
+  Solo el Administrador debe poder eliminar entregas desde la tabla principal
+  con confirmación previa, actualizando inmediatamente el listado y los
+  indicadores del día.
+
+4. EVALUACIÓN DE HORARIOS, DECISIONES Y CÁLCULO DE MULTAS
+---------------------------------------------------------
+RF-13 | Cálculo automático de retraso y exceso sobre tolerancia
+  Dada la hora acordada, la hora real de llegada y los minutos de tolerancia
+  de la empresa proveedora, el sistema debe calcular los minutos totales de
+  tardanza (0 si llega puntual o antes) y los minutos que exceden el margen de
+  tolerancia.
+
+RF-14 | Clasificación del estado de cada entrega
+  El sistema debe clasificar cada entrega en uno de los siguientes estados:
+  - Pendiente: entrega programada sin hora de llegada anotada ni marcada como
+    ausente.
+  - A tiempo: tardanza igual a 0 minutos.
+  - En tolerancia: tardanza mayor a 0 minutos pero igual o menor a la
+    tolerancia permitida.
+  - Retraso leve: entre 1 y 30 minutos por encima de la tolerancia.
+  - Retraso grave: más de 30 minutos por encima de la tolerancia.
+  - No vino: entrega marcada con inasistencia.
+
+RF-15 | Decisión operativa automática y explicación legible
+  El sistema debe cruzar el estado de llegada con el nivel de urgencia
+  (Alta, Media o Baja) para determinar la acción correspondiente ("Recibir
+  primero", "Recibir normal", "Reprogramar urgente", "Al final del día",
+  "Cancelar entrega" o "En espera" si sigue pendiente) y mostrar una
+  explicación clara del motivo en español cotidiano.
+
+RF-16 | Liquidación exacta de multas en soles (S/)
+  El sistema debe calcular la multa de cada entrega según las siguientes reglas:
+  - A tiempo, En tolerancia o Pendiente: S/ 0.00.
+  - Retraso leve o Retraso grave: minutos con multa multiplicados por la tarifa
+    por minuto de la empresa proveedora.
+  - No vino: penalidad fija por falta configurada para la empresa proveedora.
+
+RF-17 | Sugerencia automática de próximos horarios libres
+  Cuando la decisión resultante de una llegada o inasistencia sea "Reprogramar
+  urgente", el sistema debe proponer automáticamente los próximos 4 horarios
+  disponibles en intervalos de 15 minutos (contemplando cruce de medianoche).
+
+5. CONSULTA, FILTROS, ORDENAMIENTO E INDICADORES DEL DÍA
+--------------------------------------------------------
+RF-18 | Listado consolidado de entregas del día
+  En la vista principal "Entregas" (/recepcion), el sistema debe mostrar la
+  tabla con orden de compra, empresa, RUC, tolerancia, urgencia, hora acordada,
+  hora real (o Pendiente de llegada / No vino), minutos con multa, estado,
+  decisión, multa en soles (S/) y opciones de gestión.
+
+RF-19 | Búsqueda rápida de texto
+  El usuario debe poder filtrar la tabla escribiendo parte del número de orden,
+  código interno (ENT-XXX), nombre de la empresa o RUC.
+
+RF-20 | Filtros combinados y restablecimiento
+  El usuario debe poder combinar filtros por Estado (incluyendo Pendiente),
+  Urgencia y Decisión, así como restablecer todos los criterios con un clic en
+  "Ver todas".
+
+RF-21 | Ordenamiento dinámico de la tabla
+  El usuario debe poder ordenar la lista en sentido ascendente o descendente por:
+  hora acordada, minutos de retraso, multa, urgencia o empresa.
+
+RF-22 | Panel de indicadores y avisos del día
+  El sistema debe consolidar y actualizar en tiempo real: porcentaje de
+  puntualidad (calculado sobre entregas evaluadas sin afectar por entregas
+  pendientes), total de entregas con retraso o falta, suma total de multas en
+  soles (S/), retraso promedio de unidades presentadas, barra visual proporcional,
+  desglose de conteos y avisos automáticos del turno.
+
+6. PERSISTENCIA LOCAL Y DATOS INICIALES
+---------------------------------------
+RF-23 | Persistencia local en archivos JSON
+  Todo cambio guardado en entregas o cuentas de usuario debe almacenarse en
+  archivos JSON locales ordenados y codificados en UTF-8 para mantenerse
+  después de reiniciar la aplicación.
+
+RF-24 | Datos semilla de prueba listos al iniciar
+  El sistema debe incluir 3 cuentas iniciales (admin, operador y operador2
+  inactiva) y 10 entregas precargadas correspondientes a 6 empresas peruanas
+  reales (Alicorp S.A.A., Leche Gloria S.A., San Fernando S.A., Trupal S.A.,
+  Química Suiza S.A.C. y Molitalia S.A.).
+
+
+--------------------------------------------------------------------------------
+PARTE 2: REQUERIMIENTOS NO FUNCIONALES (RNF)
+--------------------------------------------------------------------------------
+
+1. SEGURIDAD
+------------
+RNF-01 | Almacenamiento seguro de contraseñas
+  Las contraseñas nunca deben guardarse en texto plano; deben encriptarse
+  mediante algoritmo hash pbkdf2:sha256 antes de persistirse.
+
+RNF-02 | Protección de cookies y clave de sesión
+  Las cookies de sesión deben configurarse con HttpOnly y SameSite="Lax",
+  permitiendo definir la clave secreta de firma mediante la variable de entorno
+  FASBIT_SECRET_KEY.
+
+RNF-03 | Validación estricta de autorización en servidor
+  Los permisos por rol y el estado activo de la cuenta deben validarse en el
+  servidor en cada petición HTTP, evitando depender únicamente de ocultar
+  botones en el navegador.
+
+RNF-04 | Protección contra bloqueo administrativo
+  El sistema debe garantizar la continuidad operativa impidiendo que un
+  administrador se desactive o degrade a sí mismo o deje la aplicación sin
+  cuentas administradoras activas.
+
+2. USABILIDAD Y ACCESIBILIDAD
+-----------------------------
+RNF-05 | Lenguaje claro libre de tecnicismos
+  Toda etiqueta, título, alerta y mensaje visible en la interfaz debe estar en
+  español cotidiano comprensible para cualquier usuario, sin jerga logística
+  compleja ni referencias visibles al stack tecnológico interno.
+
+RNF-06 | Organización modular de pantallas y submenús
+  La navegación debe dividir claramente la lista de entregas de las operaciones
+  de entrada mediante submenús desplegables ("Lista de entregas", "Anotar
+  llegada", "Nueva entrega") y migas de pan contextuales.
+
+RNF-07 | Diseño responsivo y accesible
+  La interfaz debe adaptarse a escritorio, tableta y pantallas pequeñas,
+  manteniendo contraste legible, foco visible de teclado (:focus-visible) y
+  atributos semánticos y ARIA en tablas, avisos, barra resumen y menús.
+
+RNF-08 | Fluidez en actualizaciones parciales con respaldo tradicional
+  Las acciones frecuentes (filtros, pruebas de llegada, registro, eliminación y
+  edición de usuarios) deben actualizar solo las secciones necesarias sin
+  recargar toda la página, manteniendo compatibilidad si se envían como
+  formularios HTML estándar.
+
+3. DISPONIBILIDAD Y OPERACIÓN OFFLINE
+-------------------------------------
+RNF-09 | Funcionamiento completo sin conexión a internet
+  Una vez instaladas las dependencias de Python, la aplicación no debe depender
+  de CDN externos; estilos CSS, librería de actualización parcial y fuentes
+  tipográficas (IBM Plex Sans e IBM Plex Mono en formato .woff2) deben servirse
+  localmente desde la carpeta static/.
+
+4. EXACTITUD E INTEGRIDAD DE DATOS
+----------------------------------
+RNF-10 | Precisión aritmética financiera
+  Todos los cálculos de multas y consolidaciones monetarias en soles deben
+  emplear aritmética decimal exacta (Decimal) con redondeo financiero
+  ROUND_HALF_UP a dos decimales, evitando errores de coma flotante.
+
+RNF-11 | Inmutabilidad de estructuras de dominio
+  Las entidades y resultados de evaluación en memoria deben ser inmutables
+  (dataclasses congeladas y colecciones de solo lectura), garantizando
+  predecibilidad en cálculos y simulaciones.
+
+5. RENDIMIENTO
+--------------
+RNF-12 | Optimización de cálculos repetitivos y demanda perezosa
+  El sistema debe almacenar en caché el parseo de horarios y la consulta de
+  reglas repetidas, y generar horarios sugeridos bajo demanda únicamente cuando
+  se requiera reprogramación urgente.
+
+6. MANTENIBILIDAD, PORTABILIDAD Y VERIFICABILIDAD
+-------------------------------------------------
+RNF-13 | Arquitectura por capas y archivos cortos
+  El código debe mantenerse separado en capas de responsabilidad única
+  (modelos, repositorios, servicios, controladores y plantillas), con nombres
+  claros en español y lógica de negocio desacoplada de la capa web y del
+  almacenamiento.
+
+RNF-14 | Desacoplamiento de persistencia
+  La lectura y escritura de datos debe aislarse en la capa de repositorios JSON
+  de modo que un eventual cambio a base de datos relacional (por ejemplo SQLite)
+  no requiera reescribir las reglas de negocio.
+
+RNF-15 | Portabilidad e instalación sencilla
+  El sistema debe ejecutarse en Python 3.11 o superior en cualquier equipo local,
+  permitiendo instalar dependencias con un único comando mediante
+  requirements.txt, ejecutar directamente src/fasbit/__main__.py (o ▶ Run en
+  VS Code) y ajustar host/puerto mediante FASBIT_HOST, FASBIT_PORT y
+  FASBIT_DEBUG.
+
+RNF-16 | Verificación automatizada y calidad de código
+  El proyecto debe contar con una suite de pruebas automatizadas (52 pruebas en
+  pytest), análisis estático de estilo y errores (ruff) y revisión automatizada
+  de buenas prácticas visuales sobre todas las vistas HTML y CSS.
+
+
+--------------------------------------------------------------------------------
+PARTE 3: CRONOGRAMA DE ACTIVIDADES POR SPRINTS (SEMANAS 1 A 16)
+--------------------------------------------------------------------------------
+
+SPRINT 0 — Levantamiento del Problema y Diseño Base (Semanas 1 y 2)
+--------------------------------------------------------------------
+Objetivo:
+  Definir el alcance concreto del problema de recepción logística, las reglas de
+  negocio, la estructura por capas y el conjunto inicial de datos.
+Actividades clave:
+  1. Análisis del dominio: ventanas horarias, tolerancia, tarifas por minuto,
+     inasistencias y niveles de urgencia (Alta, Media, Baja).
+  2. Especificación de la matriz de decisiones (5 estados evaluados x 3 niveles
+     de urgencia) y fórmulas de multa en soles.
+  3. Diseño de la arquitectura por capas (modelos, repositorios, servicios,
+     controladores y vistas) y estructura de archivos cortos.
+  4. Preparación del proyecto Python (pyproject.toml, estructura src/fasbit/) y
+     recopilación de datos semilla de prueba.
+Requerimientos asociados:
+  RF-23, RF-24, RNF-11, RNF-13, RNF-15.
+Entregable:
+  Estructura base del repositorio, modelos inmutables y catálogo inicial.
+Estado: Completado.
+
+
+SPRINT 1 — Núcleo Lógico y Funcional Puro del Dominio (Semanas 3 a 6)
+---------------------------------------------------------------------
+Objetivo:
+  Construir todas las reglas de clasificación, cálculo de multas, filtrado,
+  ordenamiento y consolidación de indicadores como funciones puras sin
+  dependencias web ni de archivos.
+Actividades clave:
+  1. Implementación de parseo de horarios HH:MM con validación y caché.
+  2. Clasificación declarativa de llegadas por intervalos y encaje de patrones.
+  3. Implementación de la matriz de decisiones, explicaciones legibles y
+     sugerencia perezosa de próximos horarios libres.
+  4. Cálculo exacto de multas en Decimal (ROUND_HALF_UP), currificación de
+     tarifas, composición de funciones y manejo seguro de errores.
+  5. Filtros funcionales, ordenamientos multi-criterio, búsquedas y reducción
+     de indicadores del día con alertas lógicas.
+  6. Pruebas unitarias iniciales sobre reglas, multas, filtros e indicadores.
+Requerimientos asociados:
+  RF-13, RF-14, RF-15, RF-16, RF-17, RF-22, RNF-10, RNF-11, RNF-12, RNF-16.
+Entregable:
+  Servicios puros (sla_servicio, multa_servicio, entrega_servicio,
+  kpi_servicio) verificados por pruebas unitarias.
+Estado: Completado.
+
+
+SPRINT 2 — Persistencia JSON, Seguridad y Gestión de Cuentas (Semanas 7 a 9)
+----------------------------------------------------------------------------
+Objetivo:
+  Implementar el almacenamiento persistente en JSON, la autenticación con
+  contraseñas encriptadas, sesiones seguras y el control de roles.
+Actividades clave:
+  1. Repositorios JSON UTF-8 desacoplados para entregas y usuarios.
+  2. Servicio de autenticación con hashing pbkdf2:sha256 y validación de
+     credenciales en cada petición.
+  3. Gestión funcional de usuarios: creación, cambio de rol y activación /
+     desactivación con reglas de protección del administrador activo.
+  4. Controladores de sesión y usuarios con protección por decoradores.
+  5. Pruebas de integración de login, sesiones expuestas, bloqueo 403 y CRUD
+     de cuentas.
+Requerimientos asociados:
+  RF-01, RF-02, RF-03, RF-04, RF-05, RF-06, RF-07, RF-08, RF-23,
+  RNF-01, RNF-02, RNF-03, RNF-04, RNF-14.
+Entregable:
+  Módulo completo de repositorios, seguridad y administración de usuarios.
+Estado: Completado.
+
+
+SPRINT 3 — Interfaz Web Offline, Vistas Separadas y Usabilidad (Semanas 10 a 13)
+--------------------------------------------------------------------------------
+Objetivo:
+  Desarrollar la aplicación web reactiva sin conexión a internet, refinando
+  el diseño visual, el lenguaje cotidiano y la separación en submenús por tarea.
+Actividades clave:
+  1. Construcción de la vista de inicio de sesión y tablero de entregas con
+     indicadores visuales y barra proporcional.
+  2. Integración de activos 100 % locales (PicoCSS, HTMX, estilos propios y
+     fuentes IBM Plex Sans / IBM Plex Mono offline).
+  3. Actualización parcial de tabla, indicadores y simulaciones sin recarga.
+  4. Simplificación total de textos a español cotidiano y actualización de
+     datos semilla a 6 empresas peruanas reales con RUC real.
+  5. Separación en vistas dedicadas con submenús bajo "Entregas" ("Lista de
+     entregas", "Anotar llegada" y "Nueva entrega" simplificada con estado
+     Pendiente).
+Requerimientos asociados:
+  RF-09, RF-10, RF-11, RF-12, RF-18, RF-19, RF-20, RF-21, RF-22, RF-24,
+  RNF-05, RNF-06, RNF-07, RNF-08, RNF-09.
+Entregable:
+  Interfaz web completa, accesible, responsiva y usable sin internet.
+Estado: Completado.
+
+
+SPRINT 4 — Verificación Integral, Empaquetado y Sustentación (Semanas 14 a 16)
+------------------------------------------------------------------------------
+Objetivo:
+  Asegurar la portabilidad para cualquier usuario, completar las pruebas
+  integrales y preparar la documentación final y repositorio remoto.
+Actividades clave:
+  1. Soporte de ejecución directa de src/fasbit/__main__.py (botón Run en VS
+     Code) resolviendo rutas locales automáticamente.
+  2. Creación de requirements.txt para instalación simple con pip sin pasos
+     complejos.
+  3. Ampliación de pruebas automatizadas hasta alcanzar 52 casos verificados
+     (reglas, estado Pendiente, multas, filtros, KPIs, roles, vistas separadas,
+     submenús, ausencia de tecnicismos y ejecución directa).
+  4. Revisión de calidad de código (ruff), inspección de UI y redacción de
+     README.md práctico, docs/GUIA_SISTEMA.md y docs/REQUERIMIENTOS_Y_CRONOGRAMA.txt.
+  5. Publicación y sincronización en GitHub para entrega y sustentación.
+Requerimientos asociados:
+  Verificación transversal de RF-01..RF-24 y RNF-01..RNF-16 (énfasis en
+  RNF-15 y RNF-16).
+Entregable:
+  Versión final probada (52/52 pruebas aprobadas), documentada y publicada.
+Estado: Completado.
+
+
+RESUMEN GENERAL DE SPRINTS
+--------------------------
++----------+---------------+------------------------------------+-------------------------+-------------+
+| Sprint   | Semanas       | Foco Principal                     | Cobertura Clave         | Estado      |
++----------+---------------+------------------------------------+-------------------------+-------------+
+| Sprint 0 | Semanas 1-2   | Diseño, reglas SLA y arquitectura  | RF-23..24, RNF-11,13,15 | Completado  |
+| Sprint 1 | Semanas 3-6   | Núcleo funcional puro y multas     | RF-13..17,22, RNF-10..12| Completado  |
+| Sprint 2 | Semanas 7-9   | JSON, login, sesiones y usuarios   | RF-01..08,23, RNF-01..04| Completado  |
+| Sprint 3 | Semanas 10-13 | UI offline, lenguaje simple y menú | RF-09..12,18..22,RNF-5-9| Completado  |
+| Sprint 4 | Semanas 14-16 | Pruebas (52), portabilidad y docs  | RF-01..24, RNF-01..16   | Completado  |
++----------+---------------+------------------------------------+-------------------------+-------------+
