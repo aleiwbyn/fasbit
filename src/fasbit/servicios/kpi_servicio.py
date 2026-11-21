@@ -91,17 +91,17 @@ def verificar_alertas_turno(
     return (
         AlertaLogica(
             cuantificador="∀",
-            mensaje="Liquidación validada: entregas puntuales sin penalidad.",
+            mensaje="Las entregas a tiempo tienen S/ 0.00 de multa.",
             activa=consistencia_sla,
         ),
         AlertaLogica(
             cuantificador="∃",
-            mensaje="Stock crítico afectado por demora o inasistencia.",
+            mensaje="Hay entregas urgentes con retraso o que no vinieron.",
             activa=hay_critica_incidencia,
         ),
         AlertaLogica(
             cuantificador="∃",
-            mensaje="Unidades con reprogramación urgente pendiente.",
+            mensaje="Hay entregas que necesitan nueva hora urgente.",
             activa=hay_reprogramacion,
         ),
     )

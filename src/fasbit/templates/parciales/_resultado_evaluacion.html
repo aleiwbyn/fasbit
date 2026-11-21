@@ -1,7 +1,7 @@
 {% if error %}
 <div class="franja-resultado">
   <div class="aviso-error" role="alert">
-    <strong>No se pudo completar la evaluación:</strong> {{ error }}
+    <strong>Revisa los datos:</strong> {{ error }}
   </div>
 </div>
 {% elif evaluacion %}
@@ -11,18 +11,18 @@
       <span class="mono">{{ evaluacion.entrega.codigo_orden }}</span> · {{ evaluacion.entrega.proveedor.nombre }}
     </div>
     {% if modo == 'simular' %}
-      <span class="indicador-estado estado-dentro_de_tolerancia">Simulación sin guardar</span>
+      <span class="indicador-estado estado-dentro_de_tolerancia">Solo prueba (no se guardó)</span>
     {% else %}
-      <span class="indicador-estado estado-a_tiempo">Evaluado y guardado</span>
+      <span class="indicador-estado estado-a_tiempo">Guardado correctamente</span>
     {% endif %}
   </div>
 
   <div class="resultado-datos">
-    <span><strong>Cita:</strong> <span class="num">{{ evaluacion.entrega.hora_cita }}</span></span>
-    <span><strong>Llegada:</strong> <span class="num">{{ evaluacion.entrega.hora_llegada if evaluacion.entrega.hora_llegada else "No presentado" }}</span></span>
-    <span><strong>Retraso:</strong> <span class="num">{{ evaluacion.minutos_retraso }} min</span></span>
-    <span><strong>Exceso:</strong> <span class="num">{{ evaluacion.minutos_exceso }} min</span></span>
-    <span><strong>Penalidad:</strong> <span class="num">{{ evaluacion.multa_soles | soles }}</span></span>
+    <span><strong>Hora acordada:</strong> <span class="num">{{ evaluacion.entrega.hora_cita }}</span></span>
+    <span><strong>Llegada:</strong> <span class="num">{{ evaluacion.entrega.hora_llegada if evaluacion.entrega.hora_llegada else "No vino" }}</span></span>
+    <span><strong>Retraso total:</strong> <span class="num">{{ evaluacion.minutos_retraso }} min</span></span>
+    <span><strong>Minutos con multa:</strong> <span class="num">{{ evaluacion.minutos_exceso }} min</span></span>
+    <span><strong>Multa:</strong> <span class="num">{{ evaluacion.multa_soles | soles }}</span></span>
   </div>
 
   <div class="resultado-datos">
@@ -31,7 +31,7 @@
       {{ ETIQUETAS_ESTADO[evaluacion.estado_arribo] }}
     </span>
     <span class="etiqueta-nivel nivel-{{ evaluacion.entrega.criticidad }}">
-      Criticidad {{ ETIQUETAS_CRITICIDAD[evaluacion.entrega.criticidad] }}
+      Urgencia {{ ETIQUETAS_CRITICIDAD[evaluacion.entrega.criticidad] | lower }}
     </span>
     <span class="indicador-estado accion-{{ evaluacion.accion_operativa }}">
       {{ ETIQUETAS_ACCION[evaluacion.accion_operativa] }}
@@ -42,7 +42,7 @@
 
   {% if ventanas_sugeridas is defined and ventanas_sugeridas %}
   <div class="ventanas-fila">
-    <strong>Próximas ventanas disponibles:</strong>
+    <strong>Próximos horarios libres:</strong>
     {% for hora in ventanas_sugeridas %}
       <span class="chip-dato"><strong>{{ hora }}</strong></span>
     {% endfor %}

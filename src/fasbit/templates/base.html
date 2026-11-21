@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block titulo %}fasbit — Control de Recepción{% endblock %}</title>
+  <title>{% block titulo %}fasbit — Control de entregas{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='pico.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
   <script src="{{ url_for('static', filename='htmx.min.js') }}" defer></script>
@@ -29,7 +29,7 @@
               href="{{ url_for('recepcion.panel') }}"
               class="nav-enlace {% if request.endpoint and request.endpoint.startswith('recepcion.') %}activo{% endif %}"
             >
-              Recepción
+              Entregas
             </a>
           </li>
           {% if usuario_actual.rol == 'admin' %}
@@ -38,7 +38,7 @@
               href="{{ url_for('usuarios.listar_usuarios') }}"
               class="nav-enlace {% if request.endpoint and request.endpoint.startswith('usuarios.') %}activo{% endif %}"
             >
-              Personal
+              Usuarios
             </a>
           </li>
           {% endif %}
@@ -66,8 +66,8 @@
 
   {% if usuario_actual %}
   <footer class="contenedor-principal pie-sistema">
-    <span>fasbit · Control de recepción y ventanas horarias</span>
-    <span>Turnos y penalidades en soles</span>
+    <span>fasbit · Control de entregas y horarios</span>
+    <span>Multas calculadas en soles (S/)</span>
   </footer>
   {% endif %}
 </body>

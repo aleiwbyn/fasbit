@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block titulo %}Personal y accesos — fasbit{% endblock %}
+{% block titulo %}Usuarios — fasbit{% endblock %}
 
 {% block contenido %}
 <section class="cabecera-vista">
-  <h1>Personal y accesos</h1>
-  <p>Alta de cuentas, asignación de responsabilidades y habilitación de ingreso al turno.</p>
+  <h1>Usuarios</h1>
+  <p>Crea cuentas nuevas, elige su permiso y activa o desactiva su acceso.</p>
 </section>
 
 <section class="panel-sistema">
   <div class="panel-cabecera">
-    <h2>Registrar nueva cuenta</h2>
+    <h2>Agregar nuevo usuario</h2>
   </div>
   <form
     method="post"
@@ -18,15 +18,15 @@
     hx-target="#contenedor-tabla-usuarios"
   >
     <div class="grid-campos">
-      <label>Usuario de acceso
-        <input type="text" name="usuario" placeholder="Ej. auxiliar3" required>
+      <label>Usuario
+        <input type="text" name="usuario" placeholder="Ej. operador3" required>
       </label>
 
       <label>Nombre completo
         <input type="text" name="nombre_completo" placeholder="Nombre y apellido" required>
       </label>
 
-      <label>Responsabilidad
+      <label>Tipo de cuenta
         <select name="rol" required>
           {% for r in ROLES_VALIDOS %}
           <option value="{{ r }}">{{ ETIQUETAS_ROL[r] }}</option>
@@ -34,20 +34,20 @@
         </select>
       </label>
 
-      <label>Contraseña inicial
+      <label>Contraseña
         <input type="password" name="contrasena" minlength="6" placeholder="Mínimo 6 caracteres" required>
       </label>
     </div>
 
     <div class="barra-acciones">
-      <button type="submit" class="btn-primario">Crear cuenta</button>
+      <button type="submit" class="btn-primario">Crear usuario</button>
     </div>
   </form>
 </section>
 
 <section class="panel-sistema">
   <div class="panel-cabecera">
-    <h2>Personal registrado</h2>
+    <h2>Usuarios registrados</h2>
   </div>
   {% include "parciales/_tabla_usuarios.html" %}
 </section>

@@ -67,21 +67,21 @@ REGLAS_ACCION_OPERATIVA: MappingProxyType[tuple[str, str], str] = MappingProxyTy
 
 _TEXTOS_ESTADO: MappingProxyType[str, str] = MappingProxyType(
     {
-        "a_tiempo": "Arribo puntual dentro de cita",
-        "dentro_de_tolerancia": "Arribo dentro del margen de tolerancia contractual",
-        "retraso_leve": "Retraso leve (hasta 30 min de exceso sobre tolerancia)",
-        "retraso_grave": "Retraso grave (más de 30 min de exceso sobre tolerancia)",
-        "no_presentado": "Proveedor no presentado en la ventana asignada",
+        "a_tiempo": "Llegó a la hora acordada",
+        "dentro_de_tolerancia": "Llegó tarde, pero dentro de los minutos de tolerancia",
+        "retraso_leve": "Llegó tarde (hasta 30 min después de la tolerancia)",
+        "retraso_grave": "Llegó muy tarde (más de 30 min después de la tolerancia)",
+        "no_presentado": "La empresa no llegó a su cita",
     }
 )
 
 _TEXTOS_ACCION: MappingProxyType[str, str] = MappingProxyType(
     {
-        "admision_prioritaria": "admisión prioritaria en muelle",
-        "admision_estandar": "admisión estándar en turno",
-        "reprogramacion_urgente": "reprogramación urgente de reposición",
-        "recepcion_fin_turno": "recepción condicionada al fin de turno",
-        "rechazo_o_cancelacion": "rechazo o cancelación de la ventana",
+        "admision_prioritaria": "recibir la carga primero",
+        "admision_estandar": "recibir la carga en orden normal",
+        "reprogramacion_urgente": "darle una nueva hora urgente",
+        "recepcion_fin_turno": "recibirla al final del día",
+        "rechazo_o_cancelacion": "no recibir la carga y cancelar la cita",
     }
 )
 
@@ -186,8 +186,8 @@ def explicar_regla_operativa(
     detalle_estado = _TEXTOS_ESTADO[estado_arribo]
     detalle_accion = _TEXTOS_ACCION[accion_operativa]
     return (
-        f"{detalle_estado} con criticidad de stock {criticidad}; "
-        f"corresponde {detalle_accion}."
+        f"{detalle_estado} y el pedido tiene urgencia {criticidad}; "
+        f"por eso se debe {detalle_accion}."
     )
 
 

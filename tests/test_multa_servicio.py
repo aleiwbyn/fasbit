@@ -22,8 +22,8 @@ from fasbit.servicios.multa_servicio import (
 def _crear_proveedor() -> Proveedor:
     return Proveedor(
         id_proveedor="PROV-T1",
-        nombre="Proveedor Prueba S.A.C.",
-        ruc="20123456789",
+        nombre="Alicorp S.A.A.",
+        ruc="20100055237",
         tolerancia_minutos=15,
         tarifa_minuto_soles=4.5,
         penalidad_inasistencia_soles=450.0,
@@ -99,9 +99,9 @@ def test_modelos_son_inmutables() -> None:
 
 
 def test_currificacion_composicion_y_functor_resultado() -> None:
-    calculador_andina = crear_calculador_multa(4.5)
-    assert calculador_andina(0) == 0.0
-    assert calculador_andina(12) == 54.0
+    calculador_alicorp = crear_calculador_multa(4.5)
+    assert calculador_alicorp(0) == 0.0
+    assert calculador_alicorp(12) == 54.0
 
     doble_mas_uno = componer(lambda x: x + 1, lambda x: x * 2)
     assert doble_mas_uno(5) == 11

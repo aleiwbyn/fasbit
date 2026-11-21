@@ -12,8 +12,8 @@
         <tr>
           <th>ID</th>
           <th>Usuario</th>
-          <th>Nombre completo</th>
-          <th>Responsabilidad</th>
+          <th>Nombre</th>
+          <th>Tipo de cuenta</th>
           <th>Estado</th>
           <th>Acción</th>
         </tr>
@@ -33,7 +33,7 @@
               hx-trigger="change"
               class="form-inline"
             >
-              <select name="rol" aria-label="Rol de {{ u.usuario }}" class="select-compacto">
+              <select name="rol" aria-label="Tipo de cuenta de {{ u.usuario }}" class="select-compacto">
                 {% for r in ROLES_VALIDOS %}
                 <option value="{{ r }}" {% if u.rol == r %}selected{% endif %}>
                   {{ ETIQUETAS_ROL[r] }}

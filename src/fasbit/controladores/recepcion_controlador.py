@@ -121,7 +121,7 @@ def _resolver_entrega_evaluada(
             None,
         )
         if proveedor is None:
-            raise ValueError("Debe seleccionar un proveedor válido.")
+            raise ValueError("Elige una empresa de la lista.")
 
         nueva = crear_entrega(
             entregas_existentes=entregas,
@@ -138,7 +138,7 @@ def _resolver_entrega_evaluada(
     id_entrega = request.form.get("id_entrega", "").strip()
     entrega_actual = buscar_entrega_por_id(entregas, id_entrega)
     if entrega_actual is None:
-        raise ValueError("Debe seleccionar una entrega válida del turno.")
+        raise ValueError("Elige una entrega de la lista.")
 
     actualizada = actualizar_llegada_entrega(
         entrega_actual,
@@ -165,7 +165,7 @@ def evaluar() -> Any:
         entrega_objetivo, entregas_nuevas = _resolver_entrega_evaluada(entregas)
         resultado = evaluar_entrega_segura(entrega_objetivo)
         if not resultado.es_valido or resultado.valor is None:
-            raise ValueError(resultado.error or "No se pudo evaluar la entrega.")
+            raise ValueError(resultado.error or "No se pudo revisar la entrega.")
         evaluacion = resultado.valor
         if modo == "guardar":
             guardar_entregas(ruta_entregas, entregas_nuevas)
@@ -243,7 +243,7 @@ def eliminar_entrega(id_entrega: str) -> Any:
             "parciales/_tabla_entregas.html",
             evaluaciones=contexto["evaluaciones"],
             filtros=filtros,
-            mensaje_tabla=f"Entrega '{id_entrega}' eliminada del turno.",
+            mensaje_tabla=f"Se eliminó la entrega {id_entrega}.",
             oob=False,
         )
         kpis_html = render_template(

@@ -16,15 +16,15 @@
       <thead>
         <tr>
           <th>Orden</th>
-          <th>Proveedor</th>
-          <th>Criticidad</th>
-          <th>Ventana</th>
-          <th>Exceso</th>
+          <th>Empresa</th>
+          <th>Urgencia</th>
+          <th>Horario</th>
+          <th>Min. con multa</th>
           <th>Estado</th>
-          <th>Resolución</th>
-          <th class="th-derecha">Penalidad</th>
+          <th>Decisión</th>
+          <th class="th-derecha">Multa</th>
           {% if usuario_actual and usuario_actual.rol == 'admin' %}
-          <th>Gestión</th>
+          <th>Opciones</th>
           {% endif %}
         </tr>
       </thead>
@@ -37,7 +37,7 @@
           </td>
           <td>
             {{ ev.entrega.proveedor.nombre }}
-            <span class="celda-sub">RUC {{ ev.entrega.proveedor.ruc }} · Tol. {{ ev.entrega.proveedor.tolerancia_minutos }}m</span>
+            <span class="celda-sub">RUC {{ ev.entrega.proveedor.ruc }} · {{ ev.entrega.proveedor.tolerancia_minutos }} min tolerancia</span>
           </td>
           <td>
             <span class="etiqueta-nivel nivel-{{ ev.entrega.criticidad }}">
@@ -48,14 +48,14 @@
             <span class="num">{{ ev.entrega.hora_cita }}</span>
             <span class="celda-sub num">
               {% if ev.entrega.hora_llegada %}
-                Llegada {{ ev.entrega.hora_llegada }}
+                Llegó {{ ev.entrega.hora_llegada }}
                 {% if ev.minutos_retraso > 0 %}
-                  <span class="delta-tarde">(+{{ ev.minutos_retraso }}m)</span>
+                  <span class="delta-tarde">(+{{ ev.minutos_retraso }} min)</span>
                 {% else %}
-                  <span class="delta-ok">(En hora)</span>
+                  <span class="delta-ok">(A tiempo)</span>
                 {% endif %}
               {% else %}
-                Sin arribo
+                No vino
               {% endif %}
             </span>
           </td>
@@ -97,7 +97,7 @@
   </div>
   {% else %}
   <p class="estado-vacio">
-    No hay entregas que coincidan con los filtros activos. Ajuste los criterios o restablezca los filtros para ver todo el turno.
+    No encontramos entregas con esa búsqueda. Cambia los filtros o pulsa «Ver todas».
   </p>
   {% endif %}
 </div>

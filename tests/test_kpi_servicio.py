@@ -35,7 +35,7 @@ def test_kpis_coleccion_vacia() -> None:
 
 
 def test_kpis_consolidacion_y_conteos_inmutables() -> None:
-    proveedor = Proveedor("PROV-1", "Andina S.A.C.", "20512345678", 15, 4.0, 450.0)
+    proveedor = Proveedor("PROV-1", "Alicorp S.A.A.", "20100055237", 15, 4.0, 450.0)
     entregas = (
         Entrega("ENT-001", "OC-1", proveedor, "08:00", "07:55", "alta"),
         Entrega("ENT-002", "OC-2", proveedor, "08:00", "08:10", "media"),

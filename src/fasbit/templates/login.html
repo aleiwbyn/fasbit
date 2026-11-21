@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block titulo %}Acceso — fasbit{% endblock %}
+{% block titulo %}Ingresar — fasbit{% endblock %}
 {% block clase_body %}vista-login{% endblock %}
 
 {% block cuerpo %}
@@ -16,10 +16,10 @@
     </div>
 
     <div>
-      <h1>Control de recepción logística</h1>
+      <h1>Control de entregas</h1>
       <p>
-        Registro de arribos, verificación de ventanas horarias, admisión en muelle
-        y liquidación exacta de penalidades por retraso o inasistencia.
+        Anota a qué hora llegan las empresas, revisa si llegaron a tiempo,
+        decide qué hacer con cada entrega y calcula las multas en soles.
       </p>
     </div>
 
@@ -39,7 +39,7 @@
   <section class="login-panel-acceso">
     <div class="login-caja">
       <h2>Iniciar sesión</h2>
-      <p>Ingrese sus credenciales asignadas para operar el turno.</p>
+      <p>Escribe tu usuario y contraseña para entrar.</p>
 
       {% if error %}
       <div class="aviso-error" role="alert">{{ error }}</div>
@@ -52,7 +52,7 @@
             name="usuario"
             type="text"
             value="{{ usuario_ingresado }}"
-            placeholder="Nombre de usuario"
+            placeholder="Tu usuario"
             required
             autofocus
           >
@@ -63,20 +63,20 @@
             id="contrasena"
             name="contrasena"
             type="password"
-            placeholder="Contraseña"
+            placeholder="Tu contraseña"
             required
           >
         </label>
 
-        <button type="submit" class="btn-primario">Ingresar</button>
+        <button type="submit" class="btn-primario">Entrar</button>
       </form>
 
       <details class="cuentas-acceso">
-        <summary>Cuentas de acceso</summary>
+        <summary>Cuentas de prueba</summary>
         <ul>
-          <li><strong>Jefe de Recepción:</strong> <span class="mono">admin</span> / <span class="mono">admin123</span></li>
-          <li><strong>Auxiliar de Recepción:</strong> <span class="mono">operador</span> / <span class="mono">operador123</span></li>
-          <li><strong>Cuenta suspendida:</strong> <span class="mono">operador2</span> / <span class="mono">lucia123</span></li>
+          <li><strong>Administrador:</strong> <span class="mono">admin</span> / <span class="mono">admin123</span></li>
+          <li><strong>Operador:</strong> <span class="mono">operador</span> / <span class="mono">operador123</span></li>
+          <li><strong>Cuenta desactivada:</strong> <span class="mono">operador2</span> / <span class="mono">lucia123</span></li>
         </ul>
       </details>
     </div>

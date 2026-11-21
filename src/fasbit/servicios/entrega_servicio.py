@@ -135,7 +135,7 @@ def actualizar_llegada_entrega(
 
     if hora_llegada is None or not hora_llegada.strip():
         raise ValueError(
-            "Debe indicar la hora de llegada (HH:MM) o marcar inasistencia."
+            "Escribe a qué hora llegó o marca la casilla si no vino."
         )
 
     hora_limpia = hora_llegada.strip()
@@ -173,12 +173,12 @@ def crear_entrega(
     """Valida los datos y construye una nueva Entrega inmutable."""
     orden_limpia = normalizar_codigo_orden(codigo_orden)
     if not orden_limpia:
-        raise ValueError("El código de orden es obligatorio.")
+        raise ValueError("Escribe el número de orden.")
 
     criticidad_limpia = criticidad.strip().lower()
     if criticidad_limpia not in CRITICIDADES_VALIDAS:
         raise ValueError(
-            "Criticidad inválida. Seleccione 'alta', 'media' o 'baja'."
+            "Nivel de urgencia no válido. Elige alta, media o baja."
         )
 
     cita_limpia = hora_cita.strip()
@@ -190,7 +190,7 @@ def crear_entrega(
     else:
         if hora_llegada is None or not hora_llegada.strip():
             raise ValueError(
-                "Debe indicar la hora de llegada (HH:MM) o marcar inasistencia."
+                "Escribe a qué hora llegó o marca la casilla si no vino."
             )
         llegada_limpia = hora_llegada.strip()
         parsear_hora_a_minutos(llegada_limpia)

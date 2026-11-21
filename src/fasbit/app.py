@@ -18,18 +18,18 @@ from fasbit.servicios.usuario_servicio import buscar_usuario_por_id
 
 ETIQUETAS_ESTADO: dict[str, str] = {
     "a_tiempo": "A tiempo",
-    "dentro_de_tolerancia": "Dentro de tolerancia",
+    "dentro_de_tolerancia": "En tolerancia",
     "retraso_leve": "Retraso leve",
     "retraso_grave": "Retraso grave",
-    "no_presentado": "No presentado",
+    "no_presentado": "No vino",
 }
 
 ETIQUETAS_ACCION: dict[str, str] = {
-    "admision_prioritaria": "Admisión prioritaria",
-    "admision_estandar": "Admisión estándar",
-    "reprogramacion_urgente": "Reprogramación urgente",
-    "recepcion_fin_turno": "Recepción fin de turno",
-    "rechazo_o_cancelacion": "Rechazo o cancelación",
+    "admision_prioritaria": "Recibir primero",
+    "admision_estandar": "Recibir normal",
+    "reprogramacion_urgente": "Reprogramar urgente",
+    "recepcion_fin_turno": "Al final del día",
+    "rechazo_o_cancelacion": "Cancelar entrega",
 }
 
 ETIQUETAS_CRITICIDAD: dict[str, str] = {
@@ -39,8 +39,8 @@ ETIQUETAS_CRITICIDAD: dict[str, str] = {
 }
 
 ETIQUETAS_ROL: dict[str, str] = {
-    "admin": "Jefe de Recepción",
-    "operador": "Auxiliar de Recepción",
+    "admin": "Administrador",
+    "operador": "Operador",
 }
 
 _PLANTILLA_ERROR = """{% extends "base.html" %}
@@ -50,7 +50,7 @@ _PLANTILLA_ERROR = """{% extends "base.html" %}
   <h1>{{ titulo }}</h1>
   <p>{{ mensaje }}</p>
   <a href="{{ url_for('recepcion.panel') if usuario_actual else url_for('auth.login') }}" role="button" class="btn-primario">
-    Volver al panel
+    Volver al inicio
   </a>
 </section>
 {% endblock %}
@@ -127,7 +127,7 @@ def crear_app(config: dict[str, Any] | None = None) -> Flask:
             render_template_string(
                 _PLANTILLA_ERROR,
                 titulo="Acceso restringido",
-                mensaje="No cuenta con permisos para ver esta sección.",
+                mensaje="No tienes permiso para ver esta página.",
             ),
             403,
         )
@@ -138,7 +138,7 @@ def crear_app(config: dict[str, Any] | None = None) -> Flask:
             render_template_string(
                 _PLANTILLA_ERROR,
                 titulo="Página no encontrada",
-                mensaje="La sección solicitada no está disponible.",
+                mensaje="No encontramos la página que buscas.",
             ),
             404,
         )

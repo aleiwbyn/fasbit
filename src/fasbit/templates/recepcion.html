@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block titulo %}Recepción del turno — fasbit{% endblock %}
+{% block titulo %}Entregas — fasbit{% endblock %}
 
 {% block contenido %}
 <section class="cabecera-vista">
-  <h1>Recepción del turno</h1>
-  <p>Control de ventanas horarias, admisión en muelle y liquidación de penalidades.</p>
+  <h1>Entregas de hoy</h1>
+  <p>Revisa qué empresas llegaron a tiempo, qué hacer con cada entrega y cuánto corresponde de multa.</p>
 </section>
 
 {% with oob=false %}
@@ -13,8 +13,8 @@
 
 <section class="panel-sistema">
   <div class="panel-cabecera">
-    <h2>Registrar o evaluar llegada</h2>
-    <span class="panel-subtitulo">Actualiza una cita del turno o simula el impacto antes de guardar.</span>
+    <h2>Anotar una llegada</h2>
+    <span class="panel-subtitulo">Elige una entrega para guardar su hora de llegada, o prueba primero sin guardar.</span>
   </div>
 
   <form
@@ -27,38 +27,38 @@
     <input type="hidden" name="tipo_operacion" value="existente">
 
     <div class="grid-campos">
-      <label class="campo-ancho">Entrega programada
+      <label class="campo-ancho">Entrega
         <select name="id_entrega" required>
           {% for item in entregas %}
           <option value="{{ item.id_entrega }}">
-            {{ item.codigo_orden }} · {{ item.proveedor.nombre }} (Cita {{ item.hora_cita }} · {{ ETIQUETAS_CRITICIDAD[item.criticidad] }})
+            {{ item.codigo_orden }} · {{ item.proveedor.nombre }} (Cita {{ item.hora_cita }} · Urgencia {{ ETIQUETAS_CRITICIDAD[item.criticidad] | lower }})
           </option>
           {% endfor %}
         </select>
       </label>
 
-      <label>Hora real de llegada
+      <label>¿A qué hora llegó?
         <input type="time" name="hora_llegada" value="08:00">
       </label>
 
-      <label>Observación operativa
-        <input type="text" name="observacion" placeholder="Nota breve del arribo">
+      <label>Nota (opcional)
+        <input type="text" name="observacion" placeholder="Ej. Demora en la puerta">
       </label>
     </div>
 
     <label class="casilla-linea">
       <input type="checkbox" name="no_presentado" value="1">
-      Marcar como no presentado (aplica penalidad por inasistencia)
+      La empresa no vino (se cobra multa por falta)
     </label>
 
     <div class="barra-acciones">
-      <button type="submit" name="modo" value="guardar" class="btn-primario">Evaluar y guardar</button>
-      <button type="submit" name="modo" value="simular" class="btn-secundario">Simular impacto</button>
+      <button type="submit" name="modo" value="guardar" class="btn-primario">Guardar llegada</button>
+      <button type="submit" name="modo" value="simular" class="btn-secundario">Probar sin guardar</button>
     </div>
   </form>
 
   <details class="desplegable-nueva">
-    <summary>Registrar y evaluar nueva entrega</summary>
+    <summary>Agregar una entrega nueva</summary>
     <form
       method="post"
       action="{{ url_for('recepcion.evaluar') }}"
@@ -69,25 +69,25 @@
       <input type="hidden" name="tipo_operacion" value="nueva">
 
       <div class="grid-campos">
-        <label class="campo-ancho">Proveedor
+        <label class="campo-ancho">Empresa
           <select name="id_proveedor" required>
             {% for prov in proveedores %}
             <option value="{{ prov.id_proveedor }}">
-              {{ prov.nombre }} (Tol. {{ prov.tolerancia_minutos }}m · {{ prov.tarifa_minuto_soles | soles }}/min)
+              {{ prov.nombre }} ({{ prov.tolerancia_minutos }} min de tolerancia · {{ prov.tarifa_minuto_soles | soles }} por min)
             </option>
             {% endfor %}
           </select>
         </label>
 
-        <label>Código de orden
+        <label>Número de orden
           <input type="text" name="codigo_orden" placeholder="OC-2026-0111" required>
         </label>
 
-        <label>Hora de cita
+        <label>Hora acordada
           <input type="time" name="hora_cita" value="12:00" required>
         </label>
 
-        <label>Criticidad de stock
+        <label>Urgencia
           <select name="criticidad" required>
             {% for crit in CRITICIDADES_VALIDAS %}
             <option value="{{ crit }}">{{ ETIQUETAS_CRITICIDAD[crit] }}</option>
@@ -95,23 +95,23 @@
           </select>
         </label>
 
-        <label>Hora de llegada
+        <label>¿A qué hora llegó?
           <input type="time" name="hora_llegada" value="12:10">
         </label>
 
-        <label>Observación
-          <input type="text" name="observacion" placeholder="Detalle opcional">
+        <label>Nota (opcional)
+          <input type="text" name="observacion" placeholder="Comentario opcional">
         </label>
       </div>
 
       <label class="casilla-linea">
         <input type="checkbox" name="no_presentado" value="1">
-        No presentado en ventana asignada
+        La empresa no vino
       </label>
 
       <div class="barra-acciones">
-        <button type="submit" name="modo" value="guardar" class="btn-primario">Registrar y guardar</button>
-        <button type="submit" name="modo" value="simular" class="btn-secundario">Simular nueva entrega</button>
+        <button type="submit" name="modo" value="guardar" class="btn-primario">Guardar nueva entrega</button>
+        <button type="submit" name="modo" value="simular" class="btn-secundario">Probar sin guardar</button>
       </div>
     </form>
   </details>
@@ -127,8 +127,8 @@
 
 <section class="panel-sistema">
   <div class="panel-cabecera">
-    <h2>Programación y liquidación</h2>
-    <span class="panel-subtitulo">Filtre por estado, criticidad o orden de compra.</span>
+    <h2>Lista de entregas</h2>
+    <span class="panel-subtitulo">Busca por empresa o número de orden, o filtra la lista.</span>
   </div>
 
   <form
@@ -147,7 +147,7 @@
           type="search"
           name="buscar"
           value="{{ filtros.buscar }}"
-          placeholder="Orden, proveedor o RUC"
+          placeholder="Orden, empresa o RUC"
         >
       </label>
 
@@ -162,7 +162,7 @@
         </select>
       </label>
 
-      <label>Criticidad
+      <label>Urgencia
         <select name="criticidad">
           <option value="">Todas</option>
           {% for crit in CRITICIDADES_VALIDAS %}
@@ -173,7 +173,7 @@
         </select>
       </label>
 
-      <label>Resolución
+      <label>Decisión
         <select name="accion">
           <option value="">Todas</option>
           {% for acc in ACCIONES_OPERATIVAS %}
@@ -186,25 +186,25 @@
 
       <label>Ordenar por
         <select name="ordenar_por">
-          <option value="cita" {% if filtros.ordenar_por == 'cita' %}selected{% endif %}>Hora de cita</option>
+          <option value="cita" {% if filtros.ordenar_por == 'cita' %}selected{% endif %}>Hora acordada</option>
           <option value="retraso" {% if filtros.ordenar_por == 'retraso' %}selected{% endif %}>Minutos de retraso</option>
-          <option value="multa" {% if filtros.ordenar_por == 'multa' %}selected{% endif %}>Penalidad</option>
-          <option value="criticidad" {% if filtros.ordenar_por == 'criticidad' %}selected{% endif %}>Criticidad</option>
-          <option value="proveedor" {% if filtros.ordenar_por == 'proveedor' %}selected{% endif %}>Proveedor</option>
+          <option value="multa" {% if filtros.ordenar_por == 'multa' %}selected{% endif %}>Multa</option>
+          <option value="criticidad" {% if filtros.ordenar_por == 'criticidad' %}selected{% endif %}>Urgencia</option>
+          <option value="proveedor" {% if filtros.ordenar_por == 'proveedor' %}selected{% endif %}>Empresa</option>
         </select>
       </label>
 
-      <label>Sentido
+      <label>Orden
         <select name="direccion">
-          <option value="asc" {% if filtros.direccion == 'asc' %}selected{% endif %}>Ascendente</option>
-          <option value="desc" {% if filtros.direccion == 'desc' %}selected{% endif %}>Descendente</option>
+          <option value="asc" {% if filtros.direccion == 'asc' %}selected{% endif %}>De menor a mayor</option>
+          <option value="desc" {% if filtros.direccion == 'desc' %}selected{% endif %}>De mayor a menor</option>
         </select>
       </label>
     </div>
 
     <div class="barra-acciones">
       <a href="{{ url_for('recepcion.panel') }}" class="btn-sutil btn-chico">
-        Restablecer filtros
+        Ver todas
       </a>
     </div>
   </form>

@@ -19,8 +19,8 @@ from fasbit.servicios.multa_servicio import liquidar_entregas
 
 
 def _entregas_prueba() -> tuple[Entrega, ...]:
-    prov_a = Proveedor("PROV-1", "Andina S.A.C.", "20111111111", 15, 4.0, 400.0)
-    prov_b = Proveedor("PROV-2", "Boreal E.I.R.L.", "20222222222", 10, 5.0, 500.0)
+    prov_a = Proveedor("PROV-1", "Alicorp S.A.A.", "20100055237", 15, 4.0, 400.0)
+    prov_b = Proveedor("PROV-2", "Leche Gloria S.A.", "20100190797", 10, 5.0, 500.0)
     return (
         Entrega("ENT-001", "OC-101", prov_b, "10:00", "10:00", "media"),
         Entrega("ENT-002", "OC-102", prov_a, "08:00", "08:30", "alta"),
@@ -34,8 +34,8 @@ def test_filtrar_evaluaciones_individual_y_combinado() -> None:
     assert len(filtrar_evaluaciones(evaluaciones, estado="a_tiempo")) == 1
     assert len(filtrar_evaluaciones(evaluaciones, criticidad="alta")) == 1
     assert len(filtrar_evaluaciones(evaluaciones, accion="rechazo_o_cancelacion")) == 1
-    assert len(filtrar_evaluaciones(evaluaciones, texto_busqueda="andina")) == 2
-    assert len(filtrar_evaluaciones(evaluaciones, texto_busqueda="20222222222")) == 1
+    assert len(filtrar_evaluaciones(evaluaciones, texto_busqueda="alicorp")) == 2
+    assert len(filtrar_evaluaciones(evaluaciones, texto_busqueda="20100190797")) == 1
     assert (
         len(
             filtrar_evaluaciones(
@@ -77,8 +77,8 @@ def test_ordenar_evaluaciones_por_todos_los_criterios() -> None:
     ]
 
     por_proveedor = ordenar_evaluaciones(evaluaciones, criterio="proveedor")
-    assert por_proveedor[0].entrega.proveedor.nombre == "Andina S.A.C."
-    assert por_proveedor[-1].entrega.proveedor.nombre == "Boreal E.I.R.L."
+    assert por_proveedor[0].entrega.proveedor.nombre == "Alicorp S.A.A."
+    assert por_proveedor[-1].entrega.proveedor.nombre == "Leche Gloria S.A."
 
 
 def test_actualizar_crear_y_reemplazar_sin_mutar_original() -> None:

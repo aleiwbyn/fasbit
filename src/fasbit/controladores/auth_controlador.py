@@ -76,7 +76,7 @@ def login() -> Any:
         return (
             render_template(
                 "login.html",
-                error="Credenciales inválidas o cuenta desactivada.",
+                error="Usuario o contraseña incorrectos, o la cuenta está desactivada.",
                 usuario_ingresado=nombre_usuario.strip(),
             ),
             401,

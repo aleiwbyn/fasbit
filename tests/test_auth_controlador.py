@@ -162,7 +162,7 @@ def test_flujo_htmx_evaluar_simular_y_guardar(cliente_temporal) -> None:
     )
     html_sim = resp_simular.get_data(as_text=True)
     assert resp_simular.status_code == 200
-    assert "Simulación sin guardar" in html_sim
+    assert "Solo prueba (no se guardó)" in html_sim
     assert "hx-swap-oob" not in html_sim
     assert cargar_entregas(ruta_entregas)[0].hora_llegada == "07:20"
 
@@ -179,7 +179,7 @@ def test_flujo_htmx_evaluar_simular_y_guardar(cliente_temporal) -> None:
     )
     html_guardado = resp_guardar.get_data(as_text=True)
     assert resp_guardar.status_code == 200
-    assert "Evaluado y guardado" in html_guardado
+    assert "Guardado correctamente" in html_guardado
     assert 'id="bloque-kpis" hx-swap-oob="true"' in html_guardado
     assert 'id="contenedor-tabla-entregas" hx-swap-oob="true"' in html_guardado
     assert cargar_entregas(ruta_entregas)[0].hora_llegada == "08:20"
@@ -211,7 +211,7 @@ def test_flujo_htmx_evaluar_simular_y_guardar(cliente_temporal) -> None:
         headers={"HX-Request": "true"},
     )
     assert resp_error.status_code == 200
-    assert "No se pudo completar la evaluación" in resp_error.get_data(as_text=True)
+    assert "Revisa los datos:" in resp_error.get_data(as_text=True)
 
 
 def test_eliminacion_admin_y_ventanas_reprogramacion(cliente_temporal) -> None:
@@ -220,7 +220,7 @@ def test_eliminacion_admin_y_ventanas_reprogramacion(cliente_temporal) -> None:
 
     resp_panel = cliente.get("/recepcion")
     assert resp_panel.status_code == 200
-    assert "Estado del turno" in resp_panel.get_data(as_text=True)
+    assert "Avisos de hoy" in resp_panel.get_data(as_text=True)
 
     # Operador no puede eliminar entregas
     assert cliente.post("/recepcion/entregas/ENT-010/eliminar").status_code == 403
@@ -240,7 +240,7 @@ def test_eliminacion_admin_y_ventanas_reprogramacion(cliente_temporal) -> None:
         headers={"HX-Request": "true"},
     )
     html_eval = resp_eval.get_data(as_text=True)
-    assert "Próximas ventanas disponibles" in html_eval
+    assert "Próximos horarios libres" in html_eval
     assert "11:10" in html_eval
 
     resp_eliminar = cliente.post(
@@ -276,14 +276,55 @@ def test_ui_sin_rastros_tecnologicos(cliente_temporal) -> None:
         "picocss",
         "json",
         "functor",
+        "criticidad",
+        "arribo",
+        "ventana",
+        "liquidación",
+        "penalidad",
+        "incidencia",
+        "admisión",
+        "muelle",
+        "resolución",
+        "resoluciones",
+        "sla",
+        "no presentado",
+        "contractual",
+        "credenciales",
+        "distribuidora andina",
+        "insumos del pacifico",
+        "agroindustrias valle sur",
+        "empaques lima norte",
+        "farmalogistica",
+        "sol naciente",
     )
 
-    paginas = [cliente.get("/login").get_data(as_text=True)]
+    html_login = cliente.get("/login").get_data(as_text=True)
     _iniciar_sesion(cliente, "admin", "admin123")
-    paginas.append(cliente.get("/recepcion").get_data(as_text=True))
-    paginas.append(cliente.get("/usuarios").get_data(as_text=True))
+    html_recepcion = cliente.get("/recepcion").get_data(as_text=True)
+    html_usuarios = cliente.get("/usuarios").get_data(as_text=True)
+    html_eval_sim = cliente.post(
+        "/recepcion/evaluar",
+        data={
+            "tipo_operacion": "existente",
+            "id_entrega": "ENT-007",
+            "hora_llegada": "10:55",
+            "modo": "simular",
+        },
+        headers={"HX-Request": "true"},
+    ).get_data(as_text=True)
 
-    for html in paginas:
+    empresas_reales = (
+        "Alicorp S.A.A.",
+        "Leche Gloria S.A.",
+        "San Fernando S.A.",
+        "Trupal S.A.",
+        "Química Suiza S.A.C.",
+        "Molitalia S.A.",
+    )
+    for empresa in empresas_reales:
+        assert empresa in html_recepcion
+
+    for html in (html_login, html_recepcion, html_usuarios, html_eval_sim):
         extractor = _ExtractorTexto()
         extractor.feed(html)
         texto_visible = " ".join(extractor.partes).lower()
