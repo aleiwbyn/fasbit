@@ -1,0 +1,76 @@
+<div id="contenedor-tabla-usuarios">
+  {% if error %}
+  <div class="aviso-error" role="alert">{{ error }}</div>
+  {% endif %}
+  {% if mensaje %}
+  <div class="aviso-exito" role="status">{{ mensaje }}</div>
+  {% endif %}
+
+  <div class="tabla-responsiva">
+    <table class="tabla-operativa">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Nombre completo</th>
+          <th>Responsabilidad</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td class="num">{{ u.id_usuario }}</td>
+          <td class="mono">{{ u.usuario }}</td>
+          <td>{{ u.nombre_completo }}</td>
+          <td>
+            <form
+              method="post"
+              action="{{ url_for('usuarios.actualizar_rol', id_usuario=u.id_usuario) }}"
+              hx-post="{{ url_for('usuarios.actualizar_rol', id_usuario=u.id_usuario) }}"
+              hx-target="#contenedor-tabla-usuarios"
+              hx-trigger="change"
+              class="form-inline"
+            >
+              <select name="rol" aria-label="Rol de {{ u.usuario }}" class="select-compacto">
+                {% for r in ROLES_VALIDOS %}
+                <option value="{{ r }}" {% if u.rol == r %}selected{% endif %}>
+                  {{ ETIQUETAS_ROL[r] }}
+                </option>
+                {% endfor %}
+              </select>
+            </form>
+          </td>
+          <td>
+            {% if u.activo %}
+            <span class="indicador-estado estado-activo">
+              <span class="punto-estado"></span>
+              Activo
+            </span>
+            {% else %}
+            <span class="indicador-estado estado-inactivo">
+              <span class="punto-estado"></span>
+              Inactivo
+            </span>
+            {% endif %}
+          </td>
+          <td>
+            <form
+              method="post"
+              action="{{ url_for('usuarios.actualizar_estado', id_usuario=u.id_usuario) }}"
+              hx-post="{{ url_for('usuarios.actualizar_estado', id_usuario=u.id_usuario) }}"
+              hx-target="#contenedor-tabla-usuarios"
+              class="form-inline"
+            >
+              <button type="submit" class="btn-secundario btn-chico">
+                {{ "Desactivar" if u.activo else "Activar" }}
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

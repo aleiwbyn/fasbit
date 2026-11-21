@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block titulo %}Recepción del turno — fasbit{% endblock %}
+
+{% block contenido %}
+<section class="cabecera-vista">
+  <h1>Recepción del turno</h1>
+  <p>Control de ventanas horarias, admisión en muelle y liquidación de penalidades.</p>
+</section>
+
+{% with oob=false %}
+  {% include "parciales/_tarjetas_kpi.html" %}
+{% endwith %}
+
+<section class="panel-sistema">
+  <div class="panel-cabecera">
+    <h2>Registrar o evaluar llegada</h2>
+    <span class="panel-subtitulo">Actualiza una cita del turno o simula el impacto antes de guardar.</span>
+  </div>
+
+  <form
+    method="post"
+    action="{{ url_for('recepcion.evaluar') }}"
+    hx-post="{{ url_for('recepcion.evaluar') }}"
+    hx-target="#resultado-evaluacion"
+    hx-include="#form-filtros"
+  >
+    <input type="hidden" name="tipo_operacion" value="existente">
+
+    <div class="grid-campos">
+      <label class="campo-ancho">Entrega programada
+        <select name="id_entrega" required>
+          {% for item in entregas %}
+          <option value="{{ item.id_entrega }}">
+            {{ item.codigo_orden }} · {{ item.proveedor.nombre }} (Cita {{ item.hora_cita }} · {{ ETIQUETAS_CRITICIDAD[item.criticidad] }})
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Hora real de llegada
+        <input type="time" name="hora_llegada" value="08:00">
+      </label>
+
+      <label>Observación operativa
+        <input type="text" name="observacion" placeholder="Nota breve del arribo">
+      </label>
+    </div>
+
+    <label class="casilla-linea">
+      <input type="checkbox" name="no_presentado" value="1">
+      Marcar como no presentado (aplica penalidad por inasistencia)
+    </label>
+
+    <div class="barra-acciones">
+      <button type="submit" name="modo" value="guardar" class="btn-primario">Evaluar y guardar</button>
+      <button type="submit" name="modo" value="simular" class="btn-secundario">Simular impacto</button>
+    </div>
+  </form>
+
+  <details class="desplegable-nueva">
+    <summary>Registrar y evaluar nueva entrega</summary>
+    <form
+      method="post"
+      action="{{ url_for('recepcion.evaluar') }}"
+      hx-post="{{ url_for('recepcion.evaluar') }}"
+      hx-target="#resultado-evaluacion"
+      hx-include="#form-filtros"
+    >
+      <input type="hidden" name="tipo_operacion" value="nueva">
+
+      <div class="grid-campos">
+        <label class="campo-ancho">Proveedor
+          <select name="id_proveedor" required>
+            {% for prov in proveedores %}
+            <option value="{{ prov.id_proveedor }}">
+              {{ prov.nombre }} (Tol. {{ prov.tolerancia_minutos }}m · {{ prov.tarifa_minuto_soles | soles }}/min)
+            </option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label>Código de orden
+          <input type="text" name="codigo_orden" placeholder="OC-2026-0111" required>
+        </label>
+
+        <label>Hora de cita
+          <input type="time" name="hora_cita" value="12:00" required>
+        </label>
+
+        <label>Criticidad de stock
+          <select name="criticidad" required>
+            {% for crit in CRITICIDADES_VALIDAS %}
+            <option value="{{ crit }}">{{ ETIQUETAS_CRITICIDAD[crit] }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label>Hora de llegada
+          <input type="time" name="hora_llegada" value="12:10">
+        </label>
+
+        <label>Observación
+          <input type="text" name="observacion" placeholder="Detalle opcional">
+        </label>
+      </div>
+
+      <label class="casilla-linea">
+        <input type="checkbox" name="no_presentado" value="1">
+        No presentado en ventana asignada
+      </label>
+
+      <div class="barra-acciones">
+        <button type="submit" name="modo" value="guardar" class="btn-primario">Registrar y guardar</button>
+        <button type="submit" name="modo" value="simular" class="btn-secundario">Simular nueva entrega</button>
+      </div>
+    </form>
+  </details>
+
+  <div id="resultado-evaluacion">
+    {% if evaluacion_resultado is defined or error_evaluacion is defined %}
+      {% with evaluacion=evaluacion_resultado|default(none), modo=modo_resultado|default('guardar'), error=error_evaluacion|default(none), incluir_oob=false %}
+        {% include "parciales/_resultado_evaluacion.html" %}
+      {% endwith %}
+    {% endif %}
+  </div>
+</section>
+
+<section class="panel-sistema">
+  <div class="panel-cabecera">
+    <h2>Programación y liquidación</h2>
+    <span class="panel-subtitulo">Filtre por estado, criticidad o orden de compra.</span>
+  </div>
+
+  <form
+    id="form-filtros"
+    method="get"
+    action="{{ url_for('recepcion.panel') }}"
+    hx-get="{{ url_for('recepcion.tabla_parcial') }}"
+    hx-target="#contenedor-tabla-entregas"
+    hx-trigger="change, keyup changed delay:250ms from:#filtro-buscar"
+    class="barra-filtros"
+  >
+    <div class="grid-campos">
+      <label>Buscar
+        <input
+          id="filtro-buscar"
+          type="search"
+          name="buscar"
+          value="{{ filtros.buscar }}"
+          placeholder="Orden, proveedor o RUC"
+        >
+      </label>
+
+      <label>Estado
+        <select name="estado">
+          <option value="">Todos</option>
+          {% for est in ESTADOS_ARRIBO %}
+          <option value="{{ est }}" {% if filtros.estado == est %}selected{% endif %}>
+            {{ ETIQUETAS_ESTADO[est] }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Criticidad
+        <select name="criticidad">
+          <option value="">Todas</option>
+          {% for crit in CRITICIDADES_VALIDAS %}
+          <option value="{{ crit }}" {% if filtros.criticidad == crit %}selected{% endif %}>
+            {{ ETIQUETAS_CRITICIDAD[crit] }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Resolución
+        <select name="accion">
+          <option value="">Todas</option>
+          {% for acc in ACCIONES_OPERATIVAS %}
+          <option value="{{ acc }}" {% if filtros.accion == acc %}selected{% endif %}>
+            {{ ETIQUETAS_ACCION[acc] }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Ordenar por
+        <select name="ordenar_por">
+          <option value="cita" {% if filtros.ordenar_por == 'cita' %}selected{% endif %}>Hora de cita</option>
+          <option value="retraso" {% if filtros.ordenar_por == 'retraso' %}selected{% endif %}>Minutos de retraso</option>
+          <option value="multa" {% if filtros.ordenar_por == 'multa' %}selected{% endif %}>Penalidad</option>
+          <option value="criticidad" {% if filtros.ordenar_por == 'criticidad' %}selected{% endif %}>Criticidad</option>
+          <option value="proveedor" {% if filtros.ordenar_por == 'proveedor' %}selected{% endif %}>Proveedor</option>
+        </select>
+      </label>
+
+      <label>Sentido
+        <select name="direccion">
+          <option value="asc" {% if filtros.direccion == 'asc' %}selected{% endif %}>Ascendente</option>
+          <option value="desc" {% if filtros.direccion == 'desc' %}selected{% endif %}>Descendente</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="barra-acciones">
+      <a href="{{ url_for('recepcion.panel') }}" class="btn-sutil btn-chico">
+        Restablecer filtros
+      </a>
+    </div>
+  </form>
+
+  {% with oob=false %}
+    {% include "parciales/_tabla_entregas.html" %}
+  {% endwith %}
+</section>
+{% endblock %}

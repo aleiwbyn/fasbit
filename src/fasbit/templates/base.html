@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}fasbit — Control de Recepción{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='pico.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+  <script src="{{ url_for('static', filename='htmx.min.js') }}" defer></script>
+</head>
+<body class="{% block clase_body %}{% endblock %}">
+  {% if usuario_actual %}
+  <header class="barra-superior">
+    <nav class="contenedor-principal barra-navegacion" aria-label="Navegación principal">
+      <div class="barra-izquierda">
+        <a href="{{ url_for('recepcion.panel') }}" class="marca-enlace">
+          <svg class="marca-icono" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+            <line x1="9" y1="14" x2="15" y2="14"/>
+            <circle cx="17.5" cy="14" r="1.5" fill="currentColor" stroke="none"/>
+          </svg>
+          <span class="marca-texto">fasbit</span>
+        </a>
+
+        <ul class="nav-enlaces">
+          <li>
+            <a
+              href="{{ url_for('recepcion.panel') }}"
+              class="nav-enlace {% if request.endpoint and request.endpoint.startswith('recepcion.') %}activo{% endif %}"
+            >
+              Recepción
+            </a>
+          </li>
+          {% if usuario_actual.rol == 'admin' %}
+          <li>
+            <a
+              href="{{ url_for('usuarios.listar_usuarios') }}"
+              class="nav-enlace {% if request.endpoint and request.endpoint.startswith('usuarios.') %}activo{% endif %}"
+            >
+              Personal
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="barra-derecha">
+        <div class="usuario-info">
+          <span class="usuario-nombre">{{ usuario_actual.nombre_completo }}</span>
+          <span class="usuario-rol">{{ ETIQUETAS_ROL[usuario_actual.rol] }}</span>
+        </div>
+        <form method="post" action="{{ url_for('auth.logout') }}" class="form-inline">
+          <button type="submit" class="btn-salir">Salir</button>
+        </form>
+      </div>
+    </nav>
+  </header>
+  {% endif %}
+
+  {% block cuerpo %}
+  <main class="contenedor-principal">
+    {% block contenido %}{% endblock %}
+  </main>
+  {% endblock %}
+
+  {% if usuario_actual %}
+  <footer class="contenedor-principal pie-sistema">
+    <span>fasbit · Control de recepción y ventanas horarias</span>
+    <span>Turnos y penalidades en soles</span>
+  </footer>
+  {% endif %}
+</body>
+</html>

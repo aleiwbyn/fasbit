@@ -1,0 +1,80 @@
+<section id="bloque-kpis" {% if oob %}hx-swap-oob="true"{% endif %} class="banda-kpis">
+  <div class="banda-metricas">
+    <div class="metrica-celda">
+      <span class="metrica-etiqueta">Puntualidad</span>
+      <span class="metrica-valor">{{ "%.1f"|format(kpis.puntualidad_porcentaje) }}%</span>
+      <span class="metrica-sub">
+        {{ kpis.total_cumplimiento_sla }} de {{ kpis.total_entregas }} entregas en horario
+      </span>
+    </div>
+
+    <div class="metrica-celda">
+      <span class="metrica-etiqueta">Incidencias</span>
+      <span class="metrica-valor">{{ kpis.total_incidencias }}</span>
+      <span class="metrica-sub">Demoras o inasistencias registradas</span>
+    </div>
+
+    <div class="metrica-celda">
+      <span class="metrica-etiqueta">Penalidades</span>
+      <span class="metrica-valor acento">{{ kpis.total_multas_soles | soles }}</span>
+      <span class="metrica-sub">Liquidación acumulada del turno</span>
+    </div>
+
+    <div class="metrica-celda">
+      <span class="metrica-etiqueta">Demora promedio</span>
+      <span class="metrica-valor">{{ "%.1f"|format(kpis.promedio_retraso_minutos) }} min</span>
+      <span class="metrica-sub">Calculado sobre unidades presentadas</span>
+    </div>
+  </div>
+
+  <div class="barra-composicion" role="img" aria-label="Distribución de estados del turno">
+    {% if kpis.total_entregas > 0 %}
+      {% for est in ESTADOS_ARRIBO %}
+        {% if kpis.conteo_por_estado[est] > 0 %}
+        <div
+          class="seg-{{ est }}"
+          style="flex-grow: {{ kpis.conteo_por_estado[est] }};"
+          title="{{ ETIQUETAS_ESTADO[est] }}: {{ kpis.conteo_por_estado[est] }}"
+        ></div>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <div class="barra-vacia"></div>
+    {% endif %}
+  </div>
+
+  <div class="banda-desglose">
+    <div class="fila-resumen">
+      <span class="fila-titulo">Arribos</span>
+      {% for est in ESTADOS_ARRIBO %}
+      <span class="chip-dato">
+        <span class="punto-estado seg-{{ est }}"></span>
+        {{ ETIQUETAS_ESTADO[est] }}
+        <strong>{{ kpis.conteo_por_estado[est] }}</strong>
+      </span>
+      {% endfor %}
+    </div>
+
+    <div class="fila-resumen">
+      <span class="fila-titulo">Resoluciones</span>
+      {% for acc in ACCIONES_OPERATIVAS %}
+      <span class="chip-dato">
+        {{ ETIQUETAS_ACCION[acc] }}
+        <strong>{{ kpis.conteo_por_accion[acc] }}</strong>
+      </span>
+      {% endfor %}
+    </div>
+
+    {% if kpis.alertas_turno %}
+    <div class="fila-resumen">
+      <span class="fila-titulo">Estado del turno</span>
+      {% for alerta in kpis.alertas_turno %}
+      <span class="indicador-estado {{ 'estado-a_tiempo' if (alerta.cuantificador == '∀' and alerta.activa) else ('estado-retraso_leve' if alerta.activa else 'estado-no_presentado') }}">
+        <span class="punto-estado"></span>
+        {{ alerta.mensaje }} ({{ "Sí" if alerta.activa else "No" }})
+      </span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>

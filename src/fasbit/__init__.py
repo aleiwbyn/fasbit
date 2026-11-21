@@ -1,7 +1,7 @@
-"""
-FASBIT - Planificador Inteligente de Tareas y Rutas de Abastecimiento.
-Combina programación lógica (SWI-Prolog) y programación funcional (Python).
-"""
+"""Paquete principal del sistema fasbit de control SLA logístico."""
 
-__version__ = "0.1.0"
+from fasbit.app import crear_app
 
+__version__ = "1.0.0"
+
+__all__ = ["__version__", "crear_app"]

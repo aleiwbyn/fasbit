@@ -1,0 +1,172 @@
+[
+  {
+    "id_entrega": "ENT-001",
+    "codigo_orden": "OC-2026-0101",
+    "proveedor": {
+      "id_proveedor": "PROV-01",
+      "nombre": "Distribuidora Andina S.A.C.",
+      "ruc": "20512345678",
+      "tolerancia_minutos": 15,
+      "tarifa_minuto_soles": 4.5,
+      "penalidad_inasistencia_soles": 450.0
+    },
+    "hora_cita": "07:30",
+    "hora_llegada": "07:20",
+    "criticidad": "alta",
+    "no_presentado": false,
+    "observacion": "Arribo anticipado en muelle 1."
+  },
+  {
+    "id_entrega": "ENT-002",
+    "codigo_orden": "OC-2026-0102",
+    "proveedor": {
+      "id_proveedor": "PROV-02",
+      "nombre": "Insumos del Pacifico E.I.R.L.",
+      "ruc": "20601234561",
+      "tolerancia_minutos": 10,
+      "tarifa_minuto_soles": 3.5,
+      "penalidad_inasistencia_soles": 320.0
+    },
+    "hora_cita": "08:00",
+    "hora_llegada": "08:00",
+    "criticidad": "media",
+    "no_presentado": false,
+    "observacion": "Ingreso puntual con guía completa."
+  },
+  {
+    "id_entrega": "ENT-003",
+    "codigo_orden": "OC-2026-0103",
+    "proveedor": {
+      "id_proveedor": "PROV-03",
+      "nombre": "Agroindustrias Valle Sur S.A.",
+      "ruc": "20498765432",
+      "tolerancia_minutos": 15,
+      "tarifa_minuto_soles": 5.0,
+      "penalidad_inasistencia_soles": 500.0
+    },
+    "hora_cita": "08:15",
+    "hora_llegada": "08:25",
+    "criticidad": "alta",
+    "no_presentado": false,
+    "observacion": "Demora menor en garita de control."
+  },
+  {
+    "id_entrega": "ENT-004",
+    "codigo_orden": "OC-2026-0104",
+    "proveedor": {
+      "id_proveedor": "PROV-04",
+      "nombre": "Empaques Lima Norte S.A.C.",
+      "ruc": "20556789123",
+      "tolerancia_minutos": 20,
+      "tarifa_minuto_soles": 2.5,
+      "penalidad_inasistencia_soles": 250.0
+    },
+    "hora_cita": "08:30",
+    "hora_llegada": "08:48",
+    "criticidad": "baja",
+    "no_presentado": false,
+    "observacion": "Dentro del margen contractual."
+  },
+  {
+    "id_entrega": "ENT-005",
+    "codigo_orden": "OC-2026-0105",
+    "proveedor": {
+      "id_proveedor": "PROV-05",
+      "nombre": "FarmaLogistica Peru S.A.",
+      "ruc": "20109876543",
+      "tolerancia_minutos": 10,
+      "tarifa_minuto_soles": 6.0,
+      "penalidad_inasistencia_soles": 650.0
+    },
+    "hora_cita": "09:00",
+    "hora_llegada": "09:22",
+    "criticidad": "alta",
+    "no_presentado": false,
+    "observacion": "Congestión en vía de acceso."
+  },
+  {
+    "id_entrega": "ENT-006",
+    "codigo_orden": "OC-2026-0106",
+    "proveedor": {
+      "id_proveedor": "PROV-06",
+      "nombre": "Comercializadora Sol Naciente S.A.C.",
+      "ruc": "20598712345",
+      "tolerancia_minutos": 15,
+      "tarifa_minuto_soles": 3.0,
+      "penalidad_inasistencia_soles": 300.0
+    },
+    "hora_cita": "09:30",
+    "hora_llegada": "10:05",
+    "criticidad": "baja",
+    "no_presentado": false,
+    "observacion": "Asignado a cola de fin de turno."
+  },
+  {
+    "id_entrega": "ENT-007",
+    "codigo_orden": "OC-2026-0107",
+    "proveedor": {
+      "id_proveedor": "PROV-01",
+      "nombre": "Distribuidora Andina S.A.C.",
+      "ruc": "20512345678",
+      "tolerancia_minutos": 15,
+      "tarifa_minuto_soles": 4.5,
+      "penalidad_inasistencia_soles": 450.0
+    },
+    "hora_cita": "10:00",
+    "hora_llegada": "10:55",
+    "criticidad": "alta",
+    "no_presentado": false,
+    "observacion": "Requiere reprogramación urgente por quiebre."
+  },
+  {
+    "id_entrega": "ENT-008",
+    "codigo_orden": "OC-2026-0108",
+    "proveedor": {
+      "id_proveedor": "PROV-02",
+      "nombre": "Insumos del Pacifico E.I.R.L.",
+      "ruc": "20601234561",
+      "tolerancia_minutos": 10,
+      "tarifa_minuto_soles": 3.5,
+      "penalidad_inasistencia_soles": 320.0
+    },
+    "hora_cita": "10:30",
+    "hora_llegada": "11:25",
+    "criticidad": "media",
+    "no_presentado": false,
+    "observacion": "Descarga diferida al cierre de turno."
+  },
+  {
+    "id_entrega": "ENT-009",
+    "codigo_orden": "OC-2026-0109",
+    "proveedor": {
+      "id_proveedor": "PROV-04",
+      "nombre": "Empaques Lima Norte S.A.C.",
+      "ruc": "20556789123",
+      "tolerancia_minutos": 20,
+      "tarifa_minuto_soles": 2.5,
+      "penalidad_inasistencia_soles": 250.0
+    },
+    "hora_cita": "11:00",
+    "hora_llegada": "12:00",
+    "criticidad": "baja",
+    "no_presentado": false,
+    "observacion": "Ventana superada para stock no crítico."
+  },
+  {
+    "id_entrega": "ENT-010",
+    "codigo_orden": "OC-2026-0110",
+    "proveedor": {
+      "id_proveedor": "PROV-03",
+      "nombre": "Agroindustrias Valle Sur S.A.",
+      "ruc": "20498765432",
+      "tolerancia_minutos": 15,
+      "tarifa_minuto_soles": 5.0,
+      "penalidad_inasistencia_soles": 500.0
+    },
+    "hora_cita": "11:30",
+    "hora_llegada": null,
+    "criticidad": "media",
+    "no_presentado": true,
+    "observacion": "Unidad no arribó dentro de la jornada."
+  }
+]

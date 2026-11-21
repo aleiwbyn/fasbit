@@ -1,0 +1,26 @@
+[
+  {
+    "id_usuario": "USR-01",
+    "usuario": "admin",
+    "nombre_completo": "Carla Mendoza",
+    "rol": "admin",
+    "password_hash": "pbkdf2:sha256:1000000$dpW1PVWJZdXE4t26$b3425518bde8320f02bd886d8284f4218a317120e1bb4750e59fd3bd488d8afb",
+    "activo": true
+  },
+  {
+    "id_usuario": "USR-02",
+    "usuario": "operador",
+    "nombre_completo": "Diego Quispe",
+    "rol": "operador",
+    "password_hash": "pbkdf2:sha256:1000000$3JA2WCNPseiitkNO$24331a73612d9d45df793d1dcca6f337287615f5d8babc27b88fe12b724226d1",
+    "activo": true
+  },
+  {
+    "id_usuario": "USR-03",
+    "usuario": "operador2",
+    "nombre_completo": "Lucia Torres",
+    "rol": "operador",
+    "password_hash": "pbkdf2:sha256:1000000$YqWJnALUJytatRRZ$7c63401b1463843391bfdea4ca8a4f942ab99f263bd12f57716488ecfd7a7feb",
+    "activo": false
+  }
+]

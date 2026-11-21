@@ -1,93 +1,66 @@
-# FASBIT — Planificador Lógico y Funcional de Rutas y Recepción de Abastecimiento
+# fasbit — Control SLA de Recepción Logística
 
-Versión preliminar funcional desarrollada para el curso **Programación Lógica y Funcional (UTP - 2026)**.
+Proyecto universitario para el curso de **Programación Lógica y Funcional** centrado en el control de ventanas horarias (SLA), decisión operativa de admisión en muelle y liquidación automática de penalidades en soles (`S/`) para proveedores logísticos.
 
-**Integrantes:**
-- Olarte Cortez, José Manuel
-- Auccaillo, Miguel Alejandro
+## Stack Tecnológico
 
----
+- **Lenguaje:** Python 3.11+ (100% Python, sin SWI-Prolog)
+- **Web y UI reactiva:** Flask + Jinja2 + HTMX + PicoCSS (activos locales en `src/fasbit/static/` para funcionar sin conexión a internet)
+- **Seguridad:** Sesiones y hashing `pbkdf2:sha256` nativos de Flask / Werkzeug
+- **Persistencia:** Archivos JSON locales (`data/entregas.json` y `data/usuarios.json`)
+- **Pruebas:** `pytest`
 
-## Cómo Probar el Proyecto en Visual Studio Code (Sin Complicaciones ni `.exe`)
+## Conceptos del Curso Integrados en el Dominio Real
 
-El proyecto está configurado para ejecutarse directamente desde **Visual Studio Code** en Windows, macOS o Linux **sin necesidad de ejecutar archivos `.exe` manuales**.
+- **Reglas declarativas, intervalos y encaje de patrones (`sla_servicio.py`):** `REGLAS_ACCION_OPERATIVA`, `IntervaloMinutos` (`pertenece_intervalo`/`fuera_de_intervalo`), `match/case` con guardas, negación por fallo (`es_cumplimiento_sla`), memoización con `@lru_cache` y generador perezoso infinito (`sugerir_ventanas_reprogramacion`) cuando una entrega requiere reprogramación urgente.
+- **Currificación, composición y Functor (`multa_servicio.py`):** `crear_calculador_multa`, `componer`, transformación funcional con `map()` y contenedor inmutable `Resultado` (`fmap`, `evaluar_entrega_segura`).
+- **Recursividad en listas/cadenas y CRUD dinámico (`entrega_servicio.py`):** búsqueda recursiva `buscar_entrega_por_id`, normalización recursiva `normalizar_codigo_orden`, filtrado con `filter()`, ordenamiento con `sorted()`, actualización inmutable con `dataclasses.replace()` y eliminación de entregas (`admin`).
+- **Reducción, recursión de cola y cuantificadores (`kpi_servicio.py`):** consolidación con `functools.reduce`, cálculo de retrasos con recursión de cola (`acumular_retrasos_cola`) y alertas operativas del turno mediante cuantificadores `∀` y `∃` (`verificar_alertas_turno`).
 
-> **Nota sobre Prolog:** Si tu computadora tiene instalado **SWI-Prolog (`swipl`)**, el sistema lo detecta y utiliza automáticamente. Si **no** lo tienes instalado aún, FASBIT activa automáticamente su motor lector de archivos `.pl` integrado (`embedded_prolog.py`) leyendo directamente la carpeta `prolog/`, por lo que **funciona de inmediato en cualquier PC que tenga Python 3.11+**.
-
-### Paso 1: Abrir la carpeta en VS Code
-1. Abre **Visual Studio Code**.
-2. Ve a **Archivo → Abrir carpeta...** (*File → Open Folder...*) y selecciona la carpeta `fasbit`.
-3. *(Opcional)* Si VS Code sugiere instalar la extensión oficial de **Python**, acéptala.
-
-### Paso 2: Crear el entorno e instalar librerías (solo la primera vez)
-Abre una terminal integrada en VS Code (**Terminal → Nueva terminal** o ``Ctrl + Ñ`` / ``Ctrl + ` ``) y ejecuta:
-
-**Opción A — Usando la paleta visual de VS Code (Recomendado):**
-1. Presiona `Ctrl + Shift + P` → escribe **Python: Create Environment** → elige **Venv** → selecciona tu versión de Python → marca **`requirements.txt`** y pulsa Aceptar. VS Code creará `.venv` e instalará todo solo.
-
-**Opción B — Con un solo comando en la terminal de VS Code:**
-```bash
-python -m pip install -r requirements.txt
-```
-
-### Paso 3: Iniciar el Sistema (Elige la forma más cómoda)
-
-* **Con un clic (Botón ▷ o tecla `F5`):**
-  1. Abre el archivo **`main.py`** en VS Code y haz clic en el botón **▷ (Run Python File)** arriba a la derecha *(o simplemente presiona **`F5`**)*.
-  2. Se iniciará el servidor y **se abrirá automáticamente tu navegador** en `http://127.0.0.1:8000`.
-* **Desde la terminal integrada de VS Code:**
-  ```bash
-  python main.py
-  ```
-
-### Comandos Opcionales por Consola (sin interfaz gráfica)
-Si deseas ver los reportes directamente en la terminal de VS Code:
-```bash
-python main.py status
-python main.py plan
-python main.py simulate
-python main.py routes --origen puerto_callao --salida 07:10 --plazo 08:20
-```
-
-### Ejecutar las Pruebas Automatizadas
-En la barra lateral de VS Code haz clic en el ícono del matraz (**Testing**) y pulsa **▷ Run Tests**, o ejecuta en la terminal:
-```bash
-python -m pytest -v
-```
-
----
-
-## Propósito del Proyecto
-
-**FASBIT** resuelve la problemática logística de retrasos recurrentes de proveedores, incumplimiento de plazos, posicionamiento incorrecto en muelles, colapsos en zonas de recepción y desbalances de stock mediante una arquitectura híbrida y escalable en **Prolog** y **Python**:
-
-- **Motor Lógico (`prolog/`):** Modela el grafo vial, tráfico por franja horaria, capacidades volumétricas/simultáneas de zonas de recepción y límites de inventario. Aplica reglas de inferencia y búsqueda libre de ciclos para seleccionar rutas óptimas y asignar muelles sin colapsos.
-- **Capa Funcional y Aplicativa (`src/fasbit/`):** Procesa resultados sobre estructuras de datos inmutables (`frozen=True`) mediante funciones puras (`map`, `filter`, `reduce`, `pipe`), ejecuta escenarios simulados comparativos y expone una interfaz web minimalista e intuitiva.
-
----
-
-## Estructura de Carpetas
+## Estructura del Proyecto
 
 ```text
 fasbit/
-├── main.py                          # Punto de entrada directo para VS Code (▷ Run / F5 / python main.py)
-├── requirements.txt                 # Dependencias ligeras de Python
-├── .vscode/                         # Configuración lista para Visual Studio Code (F5, tareas y pruebas)
-├── prolog/                          # Capa de Programación Lógica (.pl)
-│   ├── main.pl                      # Carga modular del motor lógico
-│   ├── knowledge_base/              # Hechos desacoplados por dominio (network, traffic, warehouse, suppliers)
-│   ├── rules/                       # Reglas de inferencia (constraints, routing, planner)
-│   └── bridge/                      # Puente JSON estructurado stdin/stdout
-├── src/fasbit/                      # Capa Funcional y de Aplicación (Python)
-│   ├── config.py                    # Configuración y autodetección multiplataforma
-│   ├── domain/                      # Modelos inmutables y excepciones de dominio
-│   ├── functional/                  # Combinadores funcionales (pipe/compose) y KPIs puros
-│   ├── infrastructure/              # PrologBridge + lector embebido .pl + escenarios
-│   ├── services/                    # Casos de uso: PlannerService y SimulationService
-│   └── interfaces/                  # CLI y API REST + Interfaz Web minimalista
 ├── data/
-│   └── scenarios.json               # 4 escenarios simulados para evaluación de impacto
-├── tests/                           # Suite de pruebas automatizadas
-└── docs/
-    └── architecture.md              # Documentación detallada de arquitectura y trazabilidad
+│   ├── entregas.json
+│   └── usuarios.json
+├── docs/
+│   └── GUIA_SISTEMA.md
+├── src/fasbit/
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── app.py
+│   ├── modelos/            # Estructuras inmutables (@dataclass(frozen=True))
+│   ├── repositorios/       # Lectura y escritura JSON
+│   ├── servicios/          # Núcleo funcional puro y lógica de negocio
+│   ├── controladores/      # Blueprints de Flask
+│   ├── templates/          # Vistas Jinja2 y parciales HTMX
+│   └── static/             # pico.min.css, htmx.min.js y estilos.css
+├── tests/                  # Suite de 5 archivos de pruebas automatizadas
+└── pyproject.toml
 ```
+
+## Instalación y Ejecución
+
+```powershell
+# 1. Instalar el paquete en modo editable
+pip install -e .
+
+# 2. Iniciar la aplicación web (http://127.0.0.1:5000)
+python -m fasbit
+
+# 3. Ejecutar las pruebas unitarias y de integración
+pytest -v
+```
+
+## Credenciales Semilla de Prueba
+
+| Usuario | Contraseña | Rol | Estado inicial | Permisos |
+| :--- | :--- | :--- | :--- | :--- |
+| `admin` | `admin123` | `admin` (Jefe de Recepción) | Activo | Control del turno, eliminar entregas, evaluador SLA, KPIs y gestor de usuarios |
+| `operador` | `operador123` | `operador` (Auxiliar de Recepción) | Activo | Control del turno, filtros, evaluador SLA y KPIs |
+| `operador2` | `lucia123` | `operador` | Inactivo | Cuenta bloqueada para validar rechazo en login |
+
+## Documentación Detallada
+
+Consulta [docs/GUIA_SISTEMA.md](docs/GUIA_SISTEMA.md) para revisar la arquitectura por capas, el detalle de cada concepto del curso aplicado dentro del dominio, la matriz completa de reglas SLA 5×3 y la guía de sustentación.

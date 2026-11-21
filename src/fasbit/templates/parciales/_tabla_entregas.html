@@ -1,0 +1,103 @@
+<div id="contenedor-tabla-entregas" {% if oob %}hx-swap-oob="true"{% endif %}>
+  {% if error_tabla is defined and error_tabla %}
+  <div class="aviso-error" role="alert">{{ error_tabla }}</div>
+  {% endif %}
+  {% if mensaje_tabla is defined and mensaje_tabla %}
+  <div class="aviso-exito" role="status">{{ mensaje_tabla }}</div>
+  {% endif %}
+
+  <div class="meta-tabla">
+    <span>Mostrando <strong>{{ evaluaciones | length }}</strong> entrega(s)</span>
+  </div>
+
+  {% if evaluaciones %}
+  <div class="tabla-responsiva">
+    <table class="tabla-operativa">
+      <thead>
+        <tr>
+          <th>Orden</th>
+          <th>Proveedor</th>
+          <th>Criticidad</th>
+          <th>Ventana</th>
+          <th>Exceso</th>
+          <th>Estado</th>
+          <th>Resolución</th>
+          <th class="th-derecha">Penalidad</th>
+          {% if usuario_actual and usuario_actual.rol == 'admin' %}
+          <th>Gestión</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for ev in evaluaciones %}
+        <tr>
+          <td>
+            <strong class="mono">{{ ev.entrega.codigo_orden }}</strong>
+            <span class="celda-sub mono">{{ ev.entrega.id_entrega }}</span>
+          </td>
+          <td>
+            {{ ev.entrega.proveedor.nombre }}
+            <span class="celda-sub">RUC {{ ev.entrega.proveedor.ruc }} · Tol. {{ ev.entrega.proveedor.tolerancia_minutos }}m</span>
+          </td>
+          <td>
+            <span class="etiqueta-nivel nivel-{{ ev.entrega.criticidad }}">
+              {{ ETIQUETAS_CRITICIDAD[ev.entrega.criticidad] }}
+            </span>
+          </td>
+          <td class="celda-ventana">
+            <span class="num">{{ ev.entrega.hora_cita }}</span>
+            <span class="celda-sub num">
+              {% if ev.entrega.hora_llegada %}
+                Llegada {{ ev.entrega.hora_llegada }}
+                {% if ev.minutos_retraso > 0 %}
+                  <span class="delta-tarde">(+{{ ev.minutos_retraso }}m)</span>
+                {% else %}
+                  <span class="delta-ok">(En hora)</span>
+                {% endif %}
+              {% else %}
+                Sin arribo
+              {% endif %}
+            </span>
+          </td>
+          <td class="num">{{ ev.minutos_exceso }} min</td>
+          <td>
+            <span class="indicador-estado estado-{{ ev.estado_arribo }}">
+              <span class="punto-estado"></span>
+              {{ ETIQUETAS_ESTADO[ev.estado_arribo] }}
+            </span>
+          </td>
+          <td>
+            <span class="indicador-estado accion-{{ ev.accion_operativa }}">
+              {{ ETIQUETAS_ACCION[ev.accion_operativa] }}
+            </span>
+          </td>
+          <td class="celda-monto num">{{ ev.multa_soles | soles }}</td>
+          {% if usuario_actual and usuario_actual.rol == 'admin' %}
+          <td>
+            <form
+              method="post"
+              action="{{ url_for('recepcion.eliminar_entrega', id_entrega=ev.entrega.id_entrega) }}"
+              hx-post="{{ url_for('recepcion.eliminar_entrega', id_entrega=ev.entrega.id_entrega) }}"
+              hx-target="#contenedor-tabla-entregas"
+              hx-swap="outerHTML"
+              hx-include="#form-filtros"
+              hx-confirm="¿Eliminar la entrega {{ ev.entrega.codigo_orden }}?"
+              class="form-inline"
+            >
+              <button type="submit" class="btn-peligro btn-chico">
+                Eliminar
+              </button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="estado-vacio">
+    No hay entregas que coincidan con los filtros activos. Ajuste los criterios o restablezca los filtros para ver todo el turno.
+  </p>
+  {% endif %}
+</div>

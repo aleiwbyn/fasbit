@@ -1,0 +1,58 @@
+{% if error %}
+<div class="franja-resultado">
+  <div class="aviso-error" role="alert">
+    <strong>No se pudo completar la evaluación:</strong> {{ error }}
+  </div>
+</div>
+{% elif evaluacion %}
+<div class="franja-resultado">
+  <div class="resultado-encabezado">
+    <div class="resultado-titulo">
+      <span class="mono">{{ evaluacion.entrega.codigo_orden }}</span> · {{ evaluacion.entrega.proveedor.nombre }}
+    </div>
+    {% if modo == 'simular' %}
+      <span class="indicador-estado estado-dentro_de_tolerancia">Simulación sin guardar</span>
+    {% else %}
+      <span class="indicador-estado estado-a_tiempo">Evaluado y guardado</span>
+    {% endif %}
+  </div>
+
+  <div class="resultado-datos">
+    <span><strong>Cita:</strong> <span class="num">{{ evaluacion.entrega.hora_cita }}</span></span>
+    <span><strong>Llegada:</strong> <span class="num">{{ evaluacion.entrega.hora_llegada if evaluacion.entrega.hora_llegada else "No presentado" }}</span></span>
+    <span><strong>Retraso:</strong> <span class="num">{{ evaluacion.minutos_retraso }} min</span></span>
+    <span><strong>Exceso:</strong> <span class="num">{{ evaluacion.minutos_exceso }} min</span></span>
+    <span><strong>Penalidad:</strong> <span class="num">{{ evaluacion.multa_soles | soles }}</span></span>
+  </div>
+
+  <div class="resultado-datos">
+    <span class="indicador-estado estado-{{ evaluacion.estado_arribo }}">
+      <span class="punto-estado"></span>
+      {{ ETIQUETAS_ESTADO[evaluacion.estado_arribo] }}
+    </span>
+    <span class="etiqueta-nivel nivel-{{ evaluacion.entrega.criticidad }}">
+      Criticidad {{ ETIQUETAS_CRITICIDAD[evaluacion.entrega.criticidad] }}
+    </span>
+    <span class="indicador-estado accion-{{ evaluacion.accion_operativa }}">
+      {{ ETIQUETAS_ACCION[evaluacion.accion_operativa] }}
+    </span>
+  </div>
+
+  <p class="resultado-explicacion">{{ evaluacion.explicacion_regla }}</p>
+
+  {% if ventanas_sugeridas is defined and ventanas_sugeridas %}
+  <div class="ventanas-fila">
+    <strong>Próximas ventanas disponibles:</strong>
+    {% for hora in ventanas_sugeridas %}
+      <span class="chip-dato"><strong>{{ hora }}</strong></span>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if incluir_oob %}
+  {% set oob = true %}
+  {% include "parciales/_tarjetas_kpi.html" %}
+  {% include "parciales/_tabla_entregas.html" %}
+{% endif %}
