@@ -14,8 +14,7 @@ try:
 except ModuleNotFoundError as exc:
     raise SystemExit(
         f"No se encontró el módulo '{exc.name}'. "
-        "Instala las dependencias desde la carpeta raíz ejecutando: "
-        "python -m pip install -e ."
+        "Instala las dependencias ejecutando: pip install -r requirements.txt"
     ) from exc
 
 

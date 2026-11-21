@@ -37,23 +37,25 @@ fasbit/
 │   ├── templates/          # Vistas Jinja2 y parciales HTMX
 │   └── static/             # pico.min.css, htmx.min.js y estilos.css
 ├── tests/                  # Suite de 5 archivos de pruebas automatizadas
-└── pyproject.toml
+├── pyproject.toml
+└── requirements.txt
 ```
 
 ## Instalación y Ejecución
 
 ```powershell
-# 1. Instalar dependencias y registrar el paquete desde la raíz del proyecto
-python -m pip install -e .
+# 1. Instalar dependencias
+pip install -r requirements.txt
 
 # 2. Iniciar la aplicación web (http://127.0.0.1:5000)
-python -m fasbit
-# También puedes ejecutar directamente (o usar ▶ Run en VS Code):
 python src/fasbit/__main__.py
+# (También puedes abrir src/fasbit/__main__.py y presionar ▶ Run en VS Code)
 
-# 3. Ejecutar las pruebas unitarias y de integración
+# 3. Ejecutar las pruebas
 pytest -v
 ```
+
+> Si `pip` no está en el `PATH`, usa `python -m pip install -r requirements.txt`. Opcionalmente también puedes instalar en modo editable (`pip install -e .`) e iniciar con `python -m fasbit`.
 
 ## Credenciales Semilla de Prueba
 
