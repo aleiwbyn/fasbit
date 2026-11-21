@@ -24,29 +24,42 @@
         </a>
 
         <ul class="nav-enlaces">
-          <li>
+          <li class="nav-desplegable">
             <a
               href="{{ url_for('recepcion.panel') }}"
-              class="nav-enlace {% if request.endpoint == 'recepcion.panel' %}activo{% endif %}"
+              class="nav-enlace nav-enlace-menu {% if request.endpoint and request.endpoint.startswith('recepcion.') %}activo{% endif %}"
+              aria-haspopup="true"
             >
-              Entregas
+              <span>Entregas</span>
+              <svg class="nav-flecha" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                <path d="M2.5 4.5L6 8l3.5-3.5"/>
+              </svg>
             </a>
-          </li>
-          <li>
-            <a
-              href="{{ url_for('recepcion.llegada') }}"
-              class="nav-enlace {% if request.endpoint in ('recepcion.llegada', 'recepcion.evaluar') %}activo{% endif %}"
-            >
-              Anotar llegada
-            </a>
-          </li>
-          <li>
-            <a
-              href="{{ url_for('recepcion.nueva_entrega') }}"
-              class="nav-enlace {% if request.endpoint in ('recepcion.nueva_entrega', 'recepcion.crear_nueva_entrega') %}activo{% endif %}"
-            >
-              Nueva entrega
-            </a>
+            <div class="nav-submenu" role="menu" aria-label="Opciones de entregas">
+              <div class="nav-submenu-caja">
+                <a
+                  href="{{ url_for('recepcion.panel') }}"
+                  role="menuitem"
+                  class="nav-subenlace {% if request.endpoint == 'recepcion.panel' %}activo{% endif %}"
+                >
+                  Lista de entregas
+                </a>
+                <a
+                  href="{{ url_for('recepcion.llegada') }}"
+                  role="menuitem"
+                  class="nav-subenlace {% if request.endpoint in ('recepcion.llegada', 'recepcion.evaluar') %}activo{% endif %}"
+                >
+                  Anotar llegada
+                </a>
+                <a
+                  href="{{ url_for('recepcion.nueva_entrega') }}"
+                  role="menuitem"
+                  class="nav-subenlace {% if request.endpoint in ('recepcion.nueva_entrega', 'recepcion.crear_nueva_entrega') %}activo{% endif %}"
+                >
+                  Nueva entrega
+                </a>
+              </div>
+            </div>
           </li>
           {% if usuario_actual.rol == 'admin' %}
           <li>

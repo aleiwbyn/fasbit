@@ -348,6 +348,9 @@ def test_vistas_separadas_nueva_entrega_pendiente_y_llegada(cliente_temporal) ->
     resp_nueva_get = cliente.get("/recepcion/nueva")
     html_nueva_get = resp_nueva_get.get_data(as_text=True)
     assert resp_nueva_get.status_code == 200
+    assert 'class="nav-submenu"' in html_nueva_get
+    assert 'role="menuitem"' in html_nueva_get
+    assert 'class="ruta-seccion"' in html_nueva_get
     assert "Número de orden" in html_nueva_get
     assert "¿A qué hora llegó?" not in html_nueva_get
     assert "Nota (opcional)" not in html_nueva_get

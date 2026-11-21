@@ -210,6 +210,73 @@ a {
   background-color: #262930;
 }
 
+.nav-desplegable {
+  position: relative;
+}
+
+.nav-enlace-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.nav-flecha {
+  transition: transform 160ms ease-out;
+}
+
+.nav-submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  padding-top: 0.35rem;
+  min-width: 195px;
+  z-index: 40;
+  display: none;
+}
+
+.nav-desplegable:hover .nav-submenu,
+.nav-desplegable:focus-within .nav-submenu {
+  display: block;
+}
+
+.nav-desplegable:hover .nav-flecha,
+.nav-desplegable:focus-within .nav-flecha {
+  transform: rotate(180deg);
+}
+
+.nav-submenu-caja {
+  background-color: var(--shell);
+  border: 1px solid var(--shell-borde);
+  border-radius: 8px;
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+}
+
+.nav-subenlace {
+  display: block;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.87rem;
+  font-weight: 500;
+  color: #d0cdc4;
+  text-decoration: none;
+  border-radius: 5px;
+  white-space: nowrap;
+  transition: color 160ms ease-out, background-color 160ms ease-out;
+}
+
+.nav-subenlace:hover {
+  background-color: #202328;
+  color: var(--canvas);
+}
+
+.nav-subenlace.activo {
+  background-color: #262930;
+  color: var(--canvas);
+}
+
 .barra-derecha {
   display: flex;
   align-items: center;
@@ -274,6 +341,22 @@ a {
   color: var(--tinta-sec);
   font-size: 0.95rem;
   max-width: 68ch;
+}
+
+.cabecera-vista .ruta-seccion {
+  font-size: 0.8rem;
+  color: var(--tinta-tenue);
+  margin: 0 0 0.3rem 0;
+}
+
+.cabecera-vista .ruta-seccion a {
+  color: var(--tinta-tenue);
+  text-decoration: none;
+}
+
+.cabecera-vista .ruta-seccion a:hover {
+  color: var(--tinta);
+  text-decoration: underline;
 }
 
 .cabecera-con-acciones {
